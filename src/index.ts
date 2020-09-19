@@ -10,6 +10,6 @@ const color: Color = {
 	green: 20,
 }
 
-console.log(color)
-
-export default color
+export default () => {
+	console.log(color)
+}
