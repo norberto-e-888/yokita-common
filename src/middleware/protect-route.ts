@@ -1,4 +1,4 @@
-import { NextFunction } from 'express'
+import { NextFunction, Response } from 'express'
 import jsonwebtoken from 'jsonwebtoken'
 import { AuthenticatedRequest } from '../typings'
 import { AppError } from '../util'
