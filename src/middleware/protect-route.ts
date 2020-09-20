@@ -3,13 +3,16 @@ import jsonwebtoken from 'jsonwebtoken'
 import { AuthenticatedRequest } from '../typings'
 import { AppError } from '../util'
 
-export default ({
-	refreshURL = '/api/auth/refresh',
-	roles,
-}: {
-	refreshURL: string
-	roles: string[]
-}) => (req: AuthenticatedRequest, _: Response, next: NextFunction) => {
+interface IOptions {
+	refreshURL?: string
+	roles?: string[]
+}
+
+export default (options?: IOptions) => (
+	req: AuthenticatedRequest,
+	_: Response,
+	next: NextFunction
+) => {
 	try {
 		const {
 			cookies: { jwt },
@@ -17,18 +20,23 @@ export default ({
 		} = req
 
 		if (!jwt) {
-			return next(new AppError('You are not authenticated.', 401))
+			return next(new AppError('Unauthenticated.', 401))
 		}
 
 		const decoded: any = jsonwebtoken.verify(
 			jwt,
 			process.env.JWT_SECRET || '',
 			{
-				ignoreExpiration: originalUrl === refreshURL,
+				ignoreExpiration:
+					originalUrl === (options?.refreshURL || '/api/auth/refresh'),
 			}
 		)
 
-		if (decoded.user?.role && roles && !roles.includes(decoded.user.role)) {
+		if (
+			decoded.user?.role &&
+			options?.roles &&
+			!options.roles.includes(decoded.user.role)
+		) {
 			throw new AppError('Unauthorized', 403)
 		}
 
