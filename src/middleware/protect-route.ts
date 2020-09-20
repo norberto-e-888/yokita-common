@@ -16,7 +16,9 @@ export default (req: AuthenticatedRequest, _: Response, next: NextFunction) => {
 
 		const decoded: any = jsonwebtoken.verify(
 			jwt,
-			process.env.JWT_SECRET || '',
+			process.env.NODE_ENV === 'test'
+				? 'jwt-test-secret'
+				: process.env.JWT_SECRET || '',
 			{
 				ignoreExpiration: originalUrl === '/api/auth/refresh',
 			}
