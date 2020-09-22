@@ -25,6 +25,6 @@ export default (jwtSecret: string) => (
 		req.user = decoded.user
 		next()
 	} catch (error) {
-		return next(error)
+		return next(new AppError('Unauthenticated', 401))
 	}
 }
