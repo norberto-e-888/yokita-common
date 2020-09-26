@@ -1,2 +1,2 @@
-export { default as protectRoute } from './protect-route'
+export { default as authenticate } from './authenticate'
 export { default as validateRequest } from './validate-request'
