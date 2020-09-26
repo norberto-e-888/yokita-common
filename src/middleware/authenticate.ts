@@ -1,6 +1,6 @@
 import { NextFunction, Response } from 'express'
 import jsonwebtoken from 'jsonwebtoken'
-import { AuthenticatedRequest } from './index.d'
+import { AuthenticatedRequest } from './types'
 import { AppError } from '../util'
 
 export default <T>({

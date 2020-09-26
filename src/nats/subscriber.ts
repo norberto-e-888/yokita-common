@@ -1,7 +1,7 @@
 import { Message, Stan } from 'node-nats-streaming'
 import { Inject, Service } from 'typedi'
 import { NatsContainerTokens } from './constants'
-import { Event } from './index.d'
+import { Event } from './types'
 
 @Service(NatsContainerTokens.Subscriber)
 export default abstract class Subscriber<T extends Event> {
