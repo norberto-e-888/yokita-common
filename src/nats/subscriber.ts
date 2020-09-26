@@ -3,7 +3,7 @@ import { Inject, Service } from 'typedi'
 import { NatsContainerTokens } from './constants'
 import { Event } from './types'
 
-@Service(NatsContainerTokens.Subscriber)
+@Service()
 export default abstract class Subscriber<T extends Event> {
 	@Inject(NatsContainerTokens.Client)
 	private readonly client: Stan
