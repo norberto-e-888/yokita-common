@@ -30,7 +30,7 @@ export default <T>({
 			: null
 
 		req.user =
-			decodedJWTUserPropertyKey && jwt
+			decoded && decodedJWTUserPropertyKey
 				? decoded[decodedJWTUserPropertyKey]
 				: decoded
 
