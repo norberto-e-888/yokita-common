@@ -1,18 +1,17 @@
 import { Stan } from 'node-nats-streaming'
-import { Inject, Service } from 'typedi'
-import { NatsContainerTokens } from './constants'
 import { Event } from './types'
 
-@Service()
 export default abstract class Publisher<T extends Event> {
-	@Inject(NatsContainerTokens.Client)
-	private readonly client: Stan
-
+	private stan: Stan
 	abstract subject: T['subject']
+
+	constructor(stan: Stan) {
+		this.stan = stan
+	}
 
 	publish(data: T['data']): Promise<void> {
 		return new Promise((resolve, reject) => {
-			this.client.publish(this.subject, JSON.stringify(data), (err) => {
+			this.stan.publish(this.subject, JSON.stringify(data), (err) => {
 				if (err) {
 					return reject(err)
 				}

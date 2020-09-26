@@ -1,20 +1,22 @@
 import { Message, Stan } from 'node-nats-streaming'
-import { Inject, Service } from 'typedi'
-import { NatsContainerTokens } from './constants'
+import { Service } from 'typedi'
 import { Event } from './types'
 
 @Service()
 export default abstract class Subscriber<T extends Event> {
-	@Inject(NatsContainerTokens.Client)
-	private readonly client: Stan
+	private stan: Stan
 
 	abstract subject: T['subject']
 	abstract queueGroupName: string
 	abstract onMessage(data: T['data'], msg: Message): void
 	protected ackWait = 5 * 1000
 
+	constructor(stan: Stan) {
+		this.stan = stan
+	}
+
 	subscriptionOptions() {
-		return this.client
+		return this.stan
 			.subscriptionOptions()
 			.setDeliverAllAvailable()
 			.setManualAckMode(true)
@@ -23,7 +25,7 @@ export default abstract class Subscriber<T extends Event> {
 	}
 
 	listen() {
-		const subscription = this.client.subscribe(
+		const subscription = this.stan.subscribe(
 			this.subject,
 			this.queueGroupName,
 			this.subscriptionOptions()
