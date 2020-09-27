@@ -1,10 +1,13 @@
 import { Message, Stan } from 'node-nats-streaming'
-import { Service } from 'typedi'
+import { Inject, Service } from 'typedi'
+import { NatsContainerTokens } from './constants'
 import { Event } from './types'
 
 @Service()
 export default abstract class Subscriber<T extends Event> {
-	abstract readonly stan: Stan
+	@Inject(NatsContainerTokens.Client)
+	private readonly stan: Stan
+
 	abstract subject: T['subject']
 	abstract queueGroupName: string
 	abstract onMessage(data: T['data'], msg: Message): void
