@@ -4,7 +4,7 @@ import { Event } from './types'
 
 @Service()
 export default abstract class Subscriber<T extends Event> {
-	protected readonly stan: Stan
+	private readonly stan: Stan
 	abstract subject: T['subject']
 	abstract queueGroupName: string
 	abstract onMessage(data: T['data'], msg: Message): void
