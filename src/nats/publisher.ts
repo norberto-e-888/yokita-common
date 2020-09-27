@@ -2,8 +2,12 @@ import { Stan } from 'node-nats-streaming'
 import { Event } from './types'
 
 export default abstract class Publisher<T extends Event> {
-	protected readonly stan: Stan
+	private readonly stan: Stan
 	abstract subject: T['subject']
+
+	constructor(stan: Stan) {
+		this.stan = stan
+	}
 
 	publish(data: T['data']): Promise<void> {
 		return new Promise((resolve, reject) => {
