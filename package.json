@@ -11,7 +11,7 @@
 	"scripts": {
 		"build": "npm run clean && tsc",
 		"clean": "del ./build/*",
-		"pub": "git add . && git commit -m \"Updates\" && npm version patch && npm publish"
+		"pub": "git add . && git commit -m \"Updates\" && npm version patch && tsc && npm publish"
 	},
 	"keywords": [
 		"NATS",
