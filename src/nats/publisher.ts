@@ -16,7 +16,6 @@ export default abstract class Publisher<T extends Event<Subject, any>> {
 					return reject(err)
 				}
 
-				console.log('Event published to subject', this.subject)
 				resolve()
 			})
 		})

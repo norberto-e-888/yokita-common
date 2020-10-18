@@ -30,7 +30,6 @@ export default abstract class Subscriber<T extends Event<Subject, any>> {
 		)
 
 		subscription.on('message', (msg: Message) => {
-			console.log(`Message received: ${this.subject} / ${this.queueGroupName}`)
 			const parsedData = this.parseMessage(msg)
 			this.onMessage(parsedData, msg)
 		})
