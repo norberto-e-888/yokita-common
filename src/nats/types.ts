@@ -6,8 +6,8 @@ export enum Subject {
 }
 
 export interface Event<S, D> {
-	subject: Subject
-	data: any
+	subject: S
+	data: D
 }
 
 export interface TicketCreatedEvent {
