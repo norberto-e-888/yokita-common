@@ -21,6 +21,8 @@ export default abstract class Subscriber<T extends Event<Subject, any>> {
 	}
 
 	listen(subject: Subject) {
+		console.log('subject', subject)
+		console.log('this.queueGroupName', this.queueGroupName)
 		const subscription = this.stan.subscribe(
 			subject,
 			this.queueGroupName,
