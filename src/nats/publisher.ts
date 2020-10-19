@@ -6,7 +6,6 @@ import { Event, Subject } from './types'
 export default abstract class Publisher<T extends Event<Subject, any>> {
 	@Inject(NatsContainerTokens.Client)
 	private readonly stan: Stan
-
 	abstract subject: T['subject']
 
 	publish(data: T['data']): Promise<void> {
