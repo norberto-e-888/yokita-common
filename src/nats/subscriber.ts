@@ -7,7 +7,7 @@ import { Event, Subject } from './types'
 export default abstract class Subscriber<T extends Event<Subject, any>> {
 	@Inject(NatsContainerTokens.Client)
 	private readonly stan: Stan
-	private subject: T['subject']
+	readonly subject: T['subject']
 	abstract queueGroupName: string
 	abstract onMessage(data: T['data'], msg: Message): void
 	protected ackWait = 5 * 1000
