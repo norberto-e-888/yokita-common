@@ -10,7 +10,7 @@ export default abstract class Subscriber<T extends Event<Subject, any>> {
 	abstract queueGroupName: string
 	abstract onMessage(data: T['data'], msg: Message): void
 	protected ackWait = 5 * 1000
-
+	//
 	subscriptionOptions() {
 		return this.stan
 			.subscriptionOptions()
