@@ -39,6 +39,7 @@ export interface OrderCreatedEvent {
 		status: any
 		user: string
 		expiresAt: string
+		version: number
 		ticket: {
 			id: string
 			price: number
@@ -54,6 +55,7 @@ export interface OrderCancelledEvent
 			status: any
 			user: string
 			expiresAt: string
+			version: number
 			ticket: {
 				id: string
 				price: number
