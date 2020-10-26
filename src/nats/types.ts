@@ -4,6 +4,7 @@ export enum Subject {
 	OrderCreated = 'order:created',
 	OrderCancelled = 'order:cancelled',
 	ExpirationComplete = 'expiration:complete',
+	PaymentCreated = 'payment:created',
 }
 
 export interface Event<S, D> {
@@ -67,4 +68,9 @@ export interface OrderCancelledEvent
 export type TExpirationCompleteEvent = Event<
 	Subject.ExpirationComplete,
 	{ orderId: string }
+>
+
+export type TPaymentCreatedEvent = Event<
+	Subject.PaymentCreated,
+	{ id: string; paymentOrder: string; stripeCharge: string }
 >
