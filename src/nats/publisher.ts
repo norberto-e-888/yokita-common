@@ -1,8 +1,9 @@
 import { Stan } from 'node-nats-streaming'
-import { Inject } from 'typedi'
+import { Inject, Service } from 'typedi'
 import { NatsContainerTokens } from './constants'
 import { Event, Subject } from './types'
 
+@Service()
 export default abstract class Publisher<T extends Event<Subject, any>> {
 	@Inject(NatsContainerTokens.Client)
 	private readonly stan: Stan
