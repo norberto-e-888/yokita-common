@@ -43,7 +43,7 @@ export default class GenericRepository<D extends Document> {
 
 export type GenericRepositoryConstructorOptions = {
 	documentNameSingular: string
-	documentNamePlular: string
+	documentNamePlular?: string
 }
 
 export type FindByIdOptions = {
