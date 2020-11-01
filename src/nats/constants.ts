@@ -1,5 +1,3 @@
 import { Token } from 'typedi'
 
-export const NatsContainerTokens = {
-	Client: new Token('NATS-Client'),
-}
+export const STANToken = new Token('STAN')

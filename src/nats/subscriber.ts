@@ -1,11 +1,11 @@
 import { Message, Stan } from 'node-nats-streaming'
 import { Inject, Service } from 'typedi'
-import { NatsContainerTokens } from './constants'
-import { Event, Subject } from './types'
+import { STANToken } from './constants'
+import { Event } from './types'
 
 @Service()
-export default abstract class Subscriber<T extends Event<Subject, any>> {
-	@Inject(NatsContainerTokens.Client)
+export default abstract class Subscriber<T extends Event<T['subject'], any>> {
+	@Inject(STANToken)
 	private readonly stan: Stan
 	abstract subject: T['subject']
 	abstract queueGroupName: string
@@ -23,7 +23,7 @@ export default abstract class Subscriber<T extends Event<Subject, any>> {
 
 	listen() {
 		const subscription = this.stan.subscribe(
-			this.subject,
+			this.subject as string,
 			this.queueGroupName,
 			this.subscriptionOptions()
 		)
