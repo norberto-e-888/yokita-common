@@ -1,6 +1,6 @@
 interface IOptions {
 	data?: any
-	status: number
+	status?: number
 	message?: string
 	isError?: boolean
 	isValidationError?: boolean
@@ -9,7 +9,7 @@ interface IOptions {
 
 export default ({
 	data,
-	status,
+	status = 200,
 	message = 'Ok.',
 	isError = false,
 	isValidationError = false,
