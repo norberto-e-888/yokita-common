@@ -1,12 +1,11 @@
 import { Document, Model } from 'mongoose'
-import Container, { Inject, Service, Token } from 'typedi'
+import { Inject, Service } from 'typedi'
+import { ModelToken } from '.'
 
 @Service()
 export default class AbstractRepository<D extends Document> {
-	private model: Model<D>
-	constructor(ModelToken: Token<any>) {
-		this.model = Container.get(ModelToken) as Model<D>
-	}
+	@Inject(ModelToken)
+	private readonly model: Model<D>
 
 	test() {
 		console.log(this.model.name, 'am I defined?')
