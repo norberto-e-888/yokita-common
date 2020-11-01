@@ -1,34 +1,29 @@
-import { ValidationChain, validationResult } from 'express-validator'
-import { Request, Response, NextFunction } from 'express'
-import { normalizeResponse } from '../util'
+import { NextFunction, Request, Response } from 'express'
+import { ObjectSchema } from 'joi'
+import { AppError } from '../util'
+import { IValidationErrors } from '../util/app-error'
 
-export default (validationChain: ValidationChain[]) => async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-): Promise<Response | void> => {
-	const validationPromises = validationChain.map((v) => v.run(req))
-	await Promise.all(validationPromises)
-	const errors = validationResult(req)
-	if (!errors.isEmpty()) {
-		const errorsArray = errors.array()
-		return res.status(400).json(
-			normalizeResponse({
-				status: 400,
-				message:
-					errorsArray.length > 1
-						? 'There were validation errors.'
-						: 'There was a validation error.',
-				isError: true,
-				isValidationError: true,
-				errors: errorsArray.reduce(
-					(acc, curr) => ({
-						...acc,
-						[curr.param]: curr.msg,
-					}),
-					{}
-				),
-			})
+export default (
+	schema: ObjectSchema,
+	propertyToValidate: 'body' | 'query' | 'params'
+) => (req: Request, _: Response, next: NextFunction) => {
+	const result = schema.validate(req[propertyToValidate], { abortEarly: false })
+	if (result.error) {
+		const errors: IValidationErrors = {}
+		result.error.details.forEach((detail) => {
+			if (detail.context?.key) {
+				errors[detail.context.key] = detail.message
+			}
+		})
+
+		return next(
+			new AppError(
+				result.error.details.length > 1
+					? 'There were validation errors'
+					: 'There was a validation error',
+				400,
+				errors
+			)
 		)
 	}
 

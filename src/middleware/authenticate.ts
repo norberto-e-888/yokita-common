@@ -7,10 +7,10 @@ export default <T>({
 	jwtSecret,
 	jwtIn = 'cookies',
 	jwtKeyName = 'jwt',
-	decodedJWTUserPropertyKey,
+	decodedJWTUserPropertyKey = 'user',
 	ignoreExpirationURLs = [],
 	isProtected = true,
-}: IOptions) => (
+}: IAuthenticateOptions) => (
 	req: AuthenticatedRequest<T>,
 	_: Response,
 	next: NextFunction
@@ -40,7 +40,7 @@ export default <T>({
 	}
 }
 
-interface IOptions {
+export interface IAuthenticateOptions {
 	jwtSecret: string
 	jwtIn?: 'body' | 'cookies' | 'query'
 	jwtKeyName?: string

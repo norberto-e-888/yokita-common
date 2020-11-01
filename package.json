@@ -28,6 +28,7 @@
 	"dependencies": {
 		"express": "^4.17.1",
 		"express-validator": "^6.6.1",
+		"joi": "^17.3.0",
 		"jsonwebtoken": "^8.5.1",
 		"node-nats-streaming": "^0.3.2",
 		"typedi": "^0.8.0"
