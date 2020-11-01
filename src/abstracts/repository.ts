@@ -3,7 +3,7 @@ import Container, { Inject, Service, Token } from 'typedi'
 import { AppError, capitalize } from '../util'
 
 @Service()
-export default abstract class AbstractRepository<D extends Document> {
+export default class AbstractRepository<D extends Document> {
 	private model: Model<D>
 	readonly documentNameSingular: string
 	readonly documentNamePlular: string
