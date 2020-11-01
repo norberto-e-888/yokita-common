@@ -1,4 +1,4 @@
-export * from './abstracts'
+export * from './generics'
 export * from './handlers'
 export * from './middleware'
 export * from './nats'

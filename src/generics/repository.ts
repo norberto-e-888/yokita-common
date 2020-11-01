@@ -1,16 +1,18 @@
 import { Document, Model } from 'mongoose'
-import Container, { Inject, Service, Token } from 'typedi'
-import { AppError, capitalize } from '../util'
+import Container, { Service, Token } from 'typedi'
+import { AppError } from '../util'
 
 @Service()
-export default class AbstractRepository<D extends Document> {
+export default class GenericRepository<D extends Document> {
 	private model: Model<D>
 	readonly documentNameSingular: string
 	readonly documentNamePlular: string
 	constructor(
 		ModelToken: Token<any>,
-		documentNameSingular: string,
-		documentNamePlular?: string
+		{
+			documentNameSingular,
+			documentNamePlular,
+		}: GenericRepositoryConstructorOptions
 	) {
 		this.model = Container.get(ModelToken) as Model<D>
 		this.documentNameSingular = documentNameSingular.toLocaleLowerCase()
@@ -25,12 +27,12 @@ export default class AbstractRepository<D extends Document> {
 
 	async findById(
 		id: string,
-		{ failIfNotFound = true }: FindByIdOptions
+		{ failIfNotFound = true }: FindByIdOptions = { failIfNotFound: true }
 	): Promise<D | null> {
 		const document = await this.model.findById(id)
 		if (failIfNotFound && !document) {
 			throw new AppError(
-				`No ${capitalize(this.documentNameSingular)} was found of ID ${id}`,
+				`No ${this.documentNameSingular} was found of ID ${id}`,
 				404
 			)
 		}
@@ -39,6 +41,11 @@ export default class AbstractRepository<D extends Document> {
 	}
 }
 
-export interface FindByIdOptions {
+export type GenericRepositoryConstructorOptions = {
+	documentNameSingular: string
+	documentNamePlular: string
+}
+
+export type FindByIdOptions = {
 	failIfNotFound?: boolean
 }
