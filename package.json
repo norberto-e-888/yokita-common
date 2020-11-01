@@ -1,6 +1,6 @@
 {
 	"name": "@yokita/common",
-	"version": "1.0.74",
+	"version": "1.0.75",
 	"description": "",
 	"main": "./build/index.js",
 	"types": "./build/index.d.ts",
