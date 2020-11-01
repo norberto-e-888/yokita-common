@@ -4,7 +4,7 @@ import { AppError } from '../util'
 
 @Service()
 export default class GenericRepository<D extends Document> {
-	private model: Model<D>
+	readonly model: Model<D>
 	readonly documentNameSingular: string
 	readonly documentNamePlular: string
 	constructor(
