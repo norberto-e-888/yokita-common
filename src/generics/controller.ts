@@ -10,8 +10,8 @@ export default class GenericController<
 	Repository extends GenericRepository<D, O>
 > {
 	readonly repository: Repository
-	constructor(Repository: Repository) {
-		this.repository = Container.get({ service: Repository })
+	constructor(repository: Repository) {
+		this.repository = repository
 		this.handleTest = this.handleTest.bind(this)
 	}
 
