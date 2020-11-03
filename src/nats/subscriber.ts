@@ -4,13 +4,15 @@ import { STANToken } from './constants'
 import { Event } from './types'
 
 @Service()
-export default abstract class Subscriber<T extends Event<T['subject'], any>> {
+export default abstract class Subscriber<
+	T extends Event<T['subject'], T['data']>
+> {
 	@Inject(STANToken)
 	private readonly stan: Stan
 	abstract subject: T['subject']
 	abstract queueGroupName: string
-	abstract onMessage(data: T['data'], msg: Message): void
 	protected ackWait = 5 * 1000
+	abstract onMessage(data: T['data'], msg: Message): void
 
 	subscriptionOptions() {
 		return this.stan

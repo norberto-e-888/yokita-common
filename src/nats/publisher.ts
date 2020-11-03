@@ -4,7 +4,9 @@ import { STANToken } from './constants'
 import { Event } from './types'
 
 @Service()
-export default abstract class Publisher<T extends Event<T['subject'], any>> {
+export default abstract class Publisher<
+	T extends Event<T['subject'], T['data']>
+> {
 	@Inject(STANToken)
 	private readonly stan: Stan
 	abstract subject: T['subject']

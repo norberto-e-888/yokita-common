@@ -4,7 +4,7 @@ import { Document } from 'mongoose'
 import { AppError } from '../util'
 import { AuthenticatedRequest } from './types'
 
-export default <T extends Document>({
+export default <User extends Document>({
 	jwtSecret,
 	jwtIn = 'cookies',
 	jwtKeyName = 'jwt',
@@ -12,7 +12,7 @@ export default <T extends Document>({
 	ignoreExpirationURLs = [],
 	isProtected = true,
 }: IAuthenticateOptions) => (
-	req: AuthenticatedRequest<T>,
+	req: AuthenticatedRequest<User>,
 	_: Response,
 	next: NextFunction
 ) => {
