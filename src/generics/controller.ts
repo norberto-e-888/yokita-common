@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { Document } from 'mongoose'
-import Container, { Service, Token } from 'typedi'
+import Container, { Service } from 'typedi'
 import { GenericRepository } from '.'
 
 @Service()
@@ -10,8 +10,8 @@ export default class GenericController<
 	Repository extends GenericRepository<D, O>
 > {
 	readonly repository: Repository
-	constructor(RepositoryToken: Token<Repository>) {
-		this.repository = Container.get(RepositoryToken)
+	constructor(Repository: Repository) {
+		this.repository = Container.get({ service: Repository })
 		this.handleTest = this.handleTest.bind(this)
 	}
 
