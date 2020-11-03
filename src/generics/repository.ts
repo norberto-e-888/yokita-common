@@ -8,13 +8,13 @@ export default class GenericRepository<D extends Document> {
 	readonly documentNameSingular: string
 	readonly documentNamePlular: string
 	constructor(
-		ModelToken: Token<any>,
+		ModelToken: Token<Model<D>>,
 		{
 			documentNameSingular,
 			documentNamePlular,
 		}: GenericRepositoryConstructorOptions
 	) {
-		this.model = Container.get(ModelToken) as Model<D>
+		this.model = Container.get(ModelToken)
 		this.documentNameSingular = documentNameSingular.toLocaleLowerCase()
 		this.documentNamePlular = documentNamePlular
 			? documentNamePlular
