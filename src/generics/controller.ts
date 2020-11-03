@@ -5,9 +5,7 @@ import { GenericRepository } from '.'
 
 @Service()
 export default class GenericController<
-	D extends Document,
-	O extends { id: string },
-	Repository extends GenericRepository<D, O>
+	Repository extends GenericRepository<Document, unknown & { id: string }>
 > {
 	readonly repository: Repository
 	constructor(repository: Repository) {
