@@ -1,5 +1,5 @@
 import { CreateQuery, Document, Model, SaveOptions } from 'mongoose'
-import Container, { Service, Token } from 'typedi'
+import { Service } from 'typedi'
 import { AppError } from '../util'
 
 @Service()
@@ -8,13 +8,13 @@ export default class GenericRepository<D extends Document, O = any> {
 	readonly documentNameSingular: string
 	readonly documentNamePlular: string
 	constructor(
-		ModelToken: Token<Model<D>>,
+		model: Model<D>,
 		{
 			documentNameSingular,
 			documentNamePlular,
 		}: GenericRepositoryConstructorOptions
 	) {
-		this.model = Container.get(ModelToken)
+		this.model = model
 		this.documentNameSingular = documentNameSingular.toLocaleLowerCase()
 		this.documentNamePlular = documentNamePlular
 			? documentNamePlular

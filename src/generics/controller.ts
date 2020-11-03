@@ -26,9 +26,7 @@ export default class GenericController<
 				{ returnPlainObject: false }
 			)
 
-			console.log('A', a)
 			const t = await this.repository.findById(a.id)
-			console.log('T', t)
 			return res.json({ t, a })
 		} catch (error) {
 			return next(error)
