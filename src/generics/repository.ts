@@ -1,4 +1,4 @@
-import { CreateQuery, Document, Model, SaveOptions } from 'mongoose'
+import { CreateQuery, Document, Model, SaveOptions, Types } from 'mongoose'
 import Container, { Service, Token } from 'typedi'
 import { AppError } from '../util'
 
@@ -34,20 +34,19 @@ export default class GenericRepository<D extends Document, O = any> {
 		{
 			failIfNotFound = true,
 			limitToOwner = false,
-			ownerProperty = 'user',
+			ownerProperty,
 			ownerId,
 			returnPlainObject = false,
 		}: FindByIdOptions = {
 			failIfNotFound: true,
 			limitToOwner: false,
-			ownerProperty: 'user',
 			returnPlainObject: false,
 		}
 	): Promise<D | O | null> {
-		const document = limitToOwner
-			? // @ts-ignore
-			  await this.model.findOne({ _id: id, [ownerProperty]: ownerId })
-			: await this.model.findById(id)
+		const document =
+			limitToOwner && ownerProperty && ownerId
+				? await this.model.findOne({ _id: id, [ownerProperty]: ownerId } as any)
+				: await this.model.findById(id)
 
 		if (failIfNotFound && !document) {
 			throw new AppError(`No ${this.documentNameSingular} was found.`, 404)
@@ -62,28 +61,26 @@ export default class GenericRepository<D extends Document, O = any> {
 
 	async updateById(
 		id: string,
-		update: Partial<O>,
+		update: Partial<D>,
 		{
 			failIfNotFound = true,
 			limitToOwner = false,
-			ownerProperty = 'user',
+			ownerProperty,
 			ownerId,
 			returnPlainObject = false,
 		}: UpdateByIdOptions = {
 			failIfNotFound: true,
 			limitToOwner: false,
-			ownerProperty: 'user',
 			returnPlainObject: false,
 		}
 	): Promise<D | O | null> {
-		const document = limitToOwner
-			? await this.model.findOneAndUpdate(
-					// @ts-ignore
-					{ _id: id, [ownerProperty]: ownerId },
-					update
-			  )
-			: // @ts-ignore
-			  await this.model.findByIdAndUpdate(id, update)
+		const document =
+			limitToOwner && ownerProperty && ownerId
+				? await this.model.findOneAndUpdate(
+						{ _id: id, [ownerProperty]: ownerId } as any,
+						update
+				  )
+				: await this.model.findByIdAndUpdate(id, update)
 
 		if (failIfNotFound && !document) {
 			throw new AppError(`No ${this.documentNameSingular} was found.`, 404)
@@ -101,23 +98,22 @@ export default class GenericRepository<D extends Document, O = any> {
 		{
 			failIfNotFound = true,
 			limitToOwner = false,
-			ownerProperty = 'user',
+			ownerProperty,
 			ownerId,
 			returnPlainObject = false,
 		}: DeleteByIdOptions = {
 			failIfNotFound: true,
 			limitToOwner: false,
-			ownerProperty: 'user',
 			returnPlainObject: false,
 		}
 	): Promise<D | O | null> {
-		const document = limitToOwner
-			? await this.model.findOneAndDelete(
-					// @ts-ignore
-					{ _id: id, [ownerProperty]: ownerId }
-			  )
-			: // @ts-ignore
-			  await this.model.findByIdAndDelete(id, update)
+		const document =
+			limitToOwner && ownerProperty && ownerId
+				? await this.model.findOneAndDelete({
+						_id: id,
+						[ownerProperty]: ownerId,
+				  } as any)
+				: await this.model.findByIdAndDelete(id)
 
 		if (failIfNotFound && !document) {
 			throw new AppError(`No ${this.documentNameSingular} was found.`, 404)
@@ -139,7 +135,7 @@ export type GenericRepositoryConstructorOptions = {
 export type FindByIdOptions = {
 	failIfNotFound?: boolean
 	limitToOwner?: boolean
-	ownerProperty?: string
+	ownerProperty?: string | number | symbol
 	ownerId?: string
 	returnPlainObject?: boolean
 }
@@ -152,7 +148,7 @@ export type CreateOptions = {
 export type UpdateByIdOptions = {
 	failIfNotFound?: boolean
 	limitToOwner?: boolean
-	ownerProperty?: string
+	ownerProperty?: string | number | symbol
 	ownerId?: string
 	returnPlainObject?: boolean
 }
@@ -160,7 +156,7 @@ export type UpdateByIdOptions = {
 export type DeleteByIdOptions = {
 	failIfNotFound?: boolean
 	limitToOwner?: boolean
-	ownerProperty?: string
+	ownerProperty?: string | number | symbol
 	ownerId?: string
 	returnPlainObject?: boolean
 }
