@@ -21,8 +21,8 @@ export default class GenericRepository<D extends Document, O = any> {
 			: `${documentNameSingular.toLocaleLowerCase()}s`
 	}
 
-	async create<DTO extends CreateQuery<any>>(
-		dto: any,
+	async create<DTO>(
+		dto: CreateQuery<DTO>,
 		{ returnPlainObject = false, nativeMongooseOptions }: CreateOptions
 	): Promise<D | O> {
 		const document = await this.model.create<DTO>(dto, nativeMongooseOptions)
