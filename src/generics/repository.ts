@@ -1,4 +1,4 @@
-import { CreateQuery, Document, Model, SaveOptions, Types } from 'mongoose'
+import { CreateQuery, Document, Model, SaveOptions } from 'mongoose'
 import Container, { Service, Token } from 'typedi'
 import { AppError } from '../util'
 
