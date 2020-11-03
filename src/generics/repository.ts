@@ -21,10 +21,6 @@ export default class GenericRepository<D extends Document> {
 			: `${documentNameSingular.toLocaleLowerCase()}s`
 	}
 
-	test() {
-		console.log(this.documentNameSingular, 'am I defined?')
-	}
-
 	async findById(
 		id: string,
 		{ failIfNotFound = true }: FindByIdOptions = { failIfNotFound: true }
