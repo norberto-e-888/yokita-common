@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { Document } from 'mongoose'
-import Container, { Service } from 'typedi'
+import { Service } from 'typedi'
 import { GenericRepository } from '.'
 
 @Service()
