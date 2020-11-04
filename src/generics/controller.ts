@@ -18,7 +18,7 @@ export default class GenericController<
 		this.repository = repository
 	}
 
-	async handleCreate(options: CreateOptions) {
+	handleCreate(options: CreateOptions) {
 		return async (req: Request, res: Response, next: NextFunction) => {
 			try {
 				const document = await this.repository.create(req.body, options)
@@ -29,7 +29,7 @@ export default class GenericController<
 		}
 	}
 
-	async handleFindById(options: FindByIdOptions) {
+	handleFindById(options: FindByIdOptions) {
 		return async (req: Request, res: Response, next: NextFunction) => {
 			try {
 				const document = await this.repository.findById(req.params.id, options)
@@ -40,7 +40,7 @@ export default class GenericController<
 		}
 	}
 
-	async handleUpdateById(options: UpdateByIdOptions) {
+	handleUpdateById(options: UpdateByIdOptions) {
 		return async (req: Request, res: Response, next: NextFunction) => {
 			try {
 				const document = await this.repository.updateById(
@@ -56,7 +56,7 @@ export default class GenericController<
 		}
 	}
 
-	async handleDeleteById(options: DeleteByIdOptions) {
+	handleDeleteById(options: DeleteByIdOptions) {
 		return async (req: Request, res: Response, next: NextFunction) => {
 			try {
 				const document = await this.repository.deleteById(
