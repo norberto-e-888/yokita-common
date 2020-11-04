@@ -1,4 +1,10 @@
-import { CreateQuery, Document, Model, SaveOptions } from 'mongoose'
+import {
+	CreateQuery,
+	Document,
+	Model,
+	QueryFindOneAndUpdateOptions,
+	SaveOptions,
+} from 'mongoose'
 import { Service } from 'typedi'
 import { AppError } from '../util'
 
@@ -68,10 +74,12 @@ export default class GenericRepository<D extends Document, O = any> {
 			ownerProperty,
 			ownerId,
 			returnPlainObject = false,
+			nativeMongooseOptions = { new: true },
 		}: UpdateByIdOptions = {
 			failIfNotFound: true,
 			limitToOwner: false,
 			returnPlainObject: false,
+			nativeMongooseOptions: { new: true },
 		}
 	): Promise<D | O | null> {
 		const document =
@@ -80,7 +88,7 @@ export default class GenericRepository<D extends Document, O = any> {
 						{ _id: id, [ownerProperty]: ownerId } as any,
 						update
 				  )
-				: await this.model.findByIdAndUpdate(id, update)
+				: await this.model.findByIdAndUpdate(id, update, nativeMongooseOptions)
 
 		if (failIfNotFound && !document) {
 			throw new AppError(`No ${this.documentNameSingular} was found.`, 404)
@@ -132,28 +140,19 @@ export type GenericRepositoryConstructorOptions = {
 	documentNamePlular?: string
 }
 
-export type FindByIdOptions = {
-	failIfNotFound?: boolean
-	limitToOwner?: boolean
-	ownerProperty?: string | number | symbol
-	ownerId?: string
-	returnPlainObject?: boolean
-}
-
 export type CreateOptions = {
 	returnPlainObject?: boolean
 	nativeMongooseOptions?: SaveOptions
 }
 
-export type UpdateByIdOptions = {
-	failIfNotFound?: boolean
-	limitToOwner?: boolean
-	ownerProperty?: string | number | symbol
-	ownerId?: string
-	returnPlainObject?: boolean
+export type FindByIdOptions = CommonActionByIdOptions
+export type UpdateByIdOptions = CommonActionByIdOptions & {
+	nativeMongooseOptions: QueryFindOneAndUpdateOptions
 }
 
-export type DeleteByIdOptions = {
+export type DeleteByIdOptions = CommonActionByIdOptions
+
+interface CommonActionByIdOptions {
 	failIfNotFound?: boolean
 	limitToOwner?: boolean
 	ownerProperty?: string | number | symbol
