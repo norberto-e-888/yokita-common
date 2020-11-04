@@ -14,7 +14,7 @@ describe('FetchPipelineBuilder', () => {
 			},
 		})
 
-		const [{ $match }] = builder.get()
+		const [{ $match }] = builder.pipeline
 		expect($match.a).toBe(1)
 		expect($match['b.c']).toEqual({ $gte: 100 })
 		expect($match.c).toBe('test')
@@ -22,12 +22,12 @@ describe('FetchPipelineBuilder', () => {
 		expect($match.f).toEqual({ $nin: [1, 2, 3] })
 	})
 
-	it('Adds a $text operation to $match when "textSearch" is in the raw query', () => {
+	it('Adds a $text: {$search} operation to $match when the textSearch option is passed', () => {
 		const builder = new FetchPipelineBuilder({
 			textSearch: 'someText',
 		})
 
-		const [{ $match }] = builder.get()
+		const [{ $match }] = builder.pipeline
 		expect($match.$text).toEqual({ $search: 'someText' })
 	})
 
@@ -38,7 +38,7 @@ describe('FetchPipelineBuilder', () => {
 			time: { from, to, field: 'dateField' },
 		})
 
-		const [{ $match }] = builder.get()
+		const [{ $match }] = builder.pipeline
 		expect($match.dateField.$gte).toEqual(from)
 		expect($match.dateField.$lte).toEqual(to)
 	})
@@ -55,7 +55,7 @@ describe('FetchPipelineBuilder', () => {
 					data: [{ $sort }],
 				},
 			},
-		] = builder.get()
+		] = builder.pipeline
 
 		expect($sort['a']).toBe(-1)
 		expect($sort['b']).toBe(1)
@@ -63,7 +63,7 @@ describe('FetchPipelineBuilder', () => {
 		expect($sort['d.e']).toBe(1)
 	})
 
-	it('Derives $skip and $limit stages from the "paginate" option as second and third stages, respectively, of the "data" sub-pipeline of the $facet stage "data" field', () => {
+	it('Derives $skip and $limit stages from the paginate option as second and third stages, respectively, of the "data" sub-pipeline of the $facet stage "data" field', () => {
 		const builder = new FetchPipelineBuilder({
 			paginate: {
 				page: '3',
@@ -78,14 +78,13 @@ describe('FetchPipelineBuilder', () => {
 					data: [, { $skip }, { $limit }],
 				},
 			},
-		] = builder.get()
+		] = builder.pipeline
 
 		expect($skip).toBe(50)
 		expect($limit).toBe(25)
 	})
 
-	it('Adds a $lookup stage per lookup option after the first 3 hard-coded stages of the $facet, data sub-pipeline, with a $unwind stage when the justOne option is true', () => {
-		const builder = new FetchPipelineBuilder()
+	it('Adds a $lookup stage per lookup option at the beginning of the pipeline, with an adjacent subsequent $unwind stage when the justOne option is true', () => {
 		const lookupOption1: LookupOption = {
 			localField: 'local',
 			foreignField: 'foreign',
@@ -110,16 +109,21 @@ describe('FetchPipelineBuilder', () => {
 			justOne: true,
 		}
 
-		const [
-			,
+		const builder = new FetchPipelineBuilder(
+			{},
 			{
-				$facet: {
-					data: [, , , lookup1, unwind1, lookup2, unwind2, lookup3, unwind3],
-				},
-			},
-		] = builder.get({
-			lookup: [lookupOption1, lookupOption2, lookupOption3],
-		})
+				lookup: [lookupOption1, lookupOption2, lookupOption3],
+			}
+		)
+
+		const [
+			lookup1,
+			unwind1,
+			lookup2,
+			unwind2,
+			lookup3,
+			unwind3,
+		] = builder.pipeline
 
 		expect((lookup1 as LookupStage).$lookup).toEqual({
 			...lookupOption1,
@@ -141,8 +145,7 @@ describe('FetchPipelineBuilder', () => {
 		expect((unwind3 as UnwindStage).$unwind.path).toBe('$' + lookupOption3.as)
 	})
 
-	it('Adds a $lookup stage per lookup option after the first 3 hard-coded stages of the $facet, data sub-pipeline, without a $unwind stage when the justOne option is false', () => {
-		const builder = new FetchPipelineBuilder()
+	it('Adds a $lookup stage per lookup option at the beginning of the pipeline, without an $unwind stage when the justOne option is false', () => {
 		const lookupOption1: LookupOption = {
 			localField: 'local',
 			foreignField: 'foreign',
@@ -167,17 +170,14 @@ describe('FetchPipelineBuilder', () => {
 			justOne: false,
 		}
 
-		const [
-			,
+		const builder = new FetchPipelineBuilder(
+			{},
 			{
-				$facet: {
-					data: [, , , lookup1, lookup2, lookup3],
-				},
-			},
-		] = builder.get({
-			lookup: [lookupOption1, lookupOption2, lookupOption3],
-		})
+				lookup: [lookupOption1, lookupOption2, lookupOption3],
+			}
+		)
 
+		const [lookup1, lookup2, lookup3] = builder.pipeline
 		expect((lookup1 as LookupStage).$lookup).toEqual({
 			...lookupOption1,
 			justOne: undefined,
@@ -194,26 +194,28 @@ describe('FetchPipelineBuilder', () => {
 		})
 	})
 
-	it('Converts values of $match according to the passed options', () => {
-		const builder = new FetchPipelineBuilder({
-			match: {
-				a: 1,
-				b: '200',
-				c: new Types.ObjectId().toHexString(),
-				d: new Types.ObjectId().toHexString(),
-				e: '500',
-				f: 2,
+	it('Converts values of $match according to the convert options', () => {
+		const builder = new FetchPipelineBuilder(
+			{
+				match: {
+					a: 1,
+					b: '200',
+					c: new Types.ObjectId().toHexString(),
+					d: new Types.ObjectId().toHexString(),
+					e: '500',
+					f: 2,
+				},
 			},
-		})
+			{
+				convert: [
+					{ keys: 'a,f', to: 'string' },
+					{ keys: 'b,e', to: 'number' },
+					{ keys: 'c,d', to: 'objectID' },
+				],
+			}
+		)
 
-		const [{ $match }] = builder.get({
-			convert: [
-				{ keys: 'a,f', to: 'string' },
-				{ keys: 'b,e', to: 'number' },
-				{ keys: 'c,d', to: 'objectID' },
-			],
-		})
-
+		const [{ $match }] = builder.pipeline
 		expect(typeof $match.a).toBe('string')
 		expect(typeof $match.b).toBe('number')
 		expect(Types.ObjectId.isValid($match.c.toHexString())).toBeTruthy()
@@ -222,9 +224,9 @@ describe('FetchPipelineBuilder', () => {
 		expect(typeof $match.f).toBe('string')
 	})
 
-	it('Adds a third and final $unwind stage to unwind $count', () => {
+	it('Adds a final $unwind stage to unwind $count', () => {
 		const builder = new FetchPipelineBuilder()
-		const [, , { $unwind }] = builder.get()
+		const [, , { $unwind }] = builder.pipeline
 		expect($unwind).toBe('$count')
 	})
 })

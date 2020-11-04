@@ -11,22 +11,28 @@ export default class {
 	}
 
 	private rawQuery: IRawQuery = {}
+	private convert: IConvertOption[]
+	private lookup: ILookUpOption[]
 
-	constructor(query?: IRawQuery) {
+	constructor(
+		query?: IRawQuery,
+		{ convert = [], lookup = [] }: IGetPipelineOptions = {
+			convert: [],
+			lookup: [],
+		}
+	) {
 		this.rawQuery.match = query?.match || {}
 		this.rawQuery.time = query?.time
 		this.rawQuery.sort = query?.sort || '-timestamps.createdAt'
 		this.rawQuery.paginate = query?.paginate || { pageSize: '10', page: '1' }
 		this.rawQuery.textSearch = query?.textSearch || undefined
+		this.convert = convert
+		this.lookup = lookup
 	}
 
-	public get(
-		{ convert = [], lookup = [] }: IGetPipelineOptions = {
-			convert: [],
-			lookup: [],
-		}
-	): Pipeline {
-		this.buildMatch(...convert)
+	// ! Returning any while Pipeline type is broken
+	public get pipeline(): any {
+		this.buildMatch()
 			.buildTime()
 			.buildSort()
 			.buildPaginate()
@@ -34,7 +40,7 @@ export default class {
 			.transformOperators()
 
 		const lookups: (LookupStage | UnwindStage)[] = []
-		lookup.forEach(({ from, localField, foreignField, as, justOne }) => {
+		this.lookup.forEach(({ from, localField, foreignField, as, justOne }) => {
 			if (!justOne) {
 				lookups.push({
 					$lookup: {
@@ -65,6 +71,7 @@ export default class {
 		})
 
 		return [
+			...lookups,
 			{
 				$match: this.mongoParseableQuery.match,
 			},
@@ -75,7 +82,6 @@ export default class {
 						{ $sort: this.mongoParseableQuery.sort },
 						{ $skip: this.mongoParseableQuery.paginate.skip },
 						{ $limit: this.mongoParseableQuery.paginate.limit },
-						...lookups,
 					],
 				},
 			},
@@ -85,11 +91,11 @@ export default class {
 		]
 	}
 
-	private buildMatch(...convert: IConvertOption[]): this {
+	private buildMatch(): this {
 		const mongoParseableMatch = Object.assign(this.rawQuery.match)
-		if (convert.length) {
+		if (this.convert.length) {
 			Object.entries(mongoParseableMatch).forEach(([key, value]) => {
-				const convertion = convert.find(({ keys }) => keys.includes(key))
+				const convertion = this.convert.find(({ keys }) => keys.includes(key))
 				if (convertion) {
 					let ClassToConverTo: any
 					switch (convertion.to) {
@@ -275,17 +281,15 @@ interface IGetPipelineOptions {
 	lookup?: ILookUpOption[]
 }
 
+// TODO Fix Pipeline type to support a dynamic set of arguments at the beginning of type LookupStage | UnwindStage and ending with 3 hard-coded places
 export type Pipeline = [
+	// @ts-ignore
+	...(LookupStage | UnwindStage)[],
 	{ $match: any },
 	{
 		$facet: {
 			count: [{ $count: 'count' }]
-			data: [
-				{ $sort: any },
-				{ $skip: number },
-				{ $limit: number },
-				...(LookupStage | UnwindStage)[]
-			]
+			data: [{ $sort: any }, { $skip: number }, { $limit: number }]
 		}
 	},
 	{
