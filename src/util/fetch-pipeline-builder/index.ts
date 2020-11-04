@@ -1,7 +1,7 @@
 import { Types } from 'mongoose'
 
 export default class {
-	private mongoParseableQuery: IMongoParseableQuery = {
+	private mongoParseableQuery: MongoParseableQuery = {
 		match: {},
 		sort: {},
 		paginate: {
@@ -10,15 +10,21 @@ export default class {
 		},
 	}
 
-	private rawQuery: IRawQuery = {}
-	private convert: IConvertOption[]
-	private lookup: ILookUpOption[]
+	private rawQuery: RawQuery = {}
+	private convert: ConvertOption[]
+	private lookup: LookUpOption[]
+	private performLookupsPreMatch: boolean
 
 	constructor(
-		query?: IRawQuery,
-		{ convert = [], lookup = [] }: IGetPipelineOptions = {
+		query?: RawQuery,
+		{
+			convert = [],
+			lookup = [],
+			performLookupsPreMatch = false,
+		}: PipelineOptions = {
 			convert: [],
 			lookup: [],
+			performLookupsPreMatch: false,
 		}
 	) {
 		this.rawQuery.match = query?.match || {}
@@ -28,6 +34,7 @@ export default class {
 		this.rawQuery.textSearch = query?.textSearch || undefined
 		this.convert = convert
 		this.lookup = lookup
+		this.performLookupsPreMatch = performLookupsPreMatch
 	}
 
 	// ! Returning any while Pipeline type is broken
@@ -71,7 +78,7 @@ export default class {
 		})
 
 		return [
-			...lookups,
+			...(this.performLookupsPreMatch ? lookups : []),
 			{
 				$match: this.mongoParseableQuery.match,
 			},
@@ -82,6 +89,7 @@ export default class {
 						{ $sort: this.mongoParseableQuery.sort },
 						{ $skip: this.mongoParseableQuery.paginate.skip },
 						{ $limit: this.mongoParseableQuery.paginate.limit },
+						...(!this.performLookupsPreMatch ? lookups : []),
 					],
 				},
 			},
@@ -127,8 +135,8 @@ export default class {
 
 	private buildTime(): this {
 		if (this.rawQuery.time) {
-			const rawQueryCopy = Object.assign(this.rawQuery) as IRawQuery
-			const timestampQuery: IMongoParseableTime = {
+			const rawQueryCopy = Object.assign(this.rawQuery) as RawQuery
+			const timestampQuery: MongoParseableTime = {
 				gte: rawQueryCopy.time?.from,
 				lte: rawQueryCopy.time?.to,
 			}
@@ -151,7 +159,7 @@ export default class {
 
 	private buildSort(): this {
 		const rawSortKeys = this.rawQuery.sort?.trim().split(',')
-		const mongoParseableMatchSort: IMongoParseableSort = {}
+		const mongoParseableMatchSort: MongoParseableSort = {}
 		rawSortKeys?.forEach((key) => {
 			if (key.startsWith('-')) {
 				mongoParseableMatchSort[key.slice(1)] = -1
@@ -170,7 +178,7 @@ export default class {
 			page: '1',
 		}
 
-		const mongoparseablePagination: IMongoParseablePaginate = {
+		const mongoparseablePagination: MongoParseablePaginate = {
 			limit: parseInt(pageSize),
 			skip: parseInt(pageSize) * (parseInt(page) - 1),
 		}
@@ -214,61 +222,61 @@ export default class {
 	}
 }
 
-export interface IRawQuery {
+export interface RawQuery {
 	match?: any
-	time?: IRawTime
+	time?: RawTime
 	sort?: string
-	paginate?: IRawPaginate
+	paginate?: RawPaginate
 	textSearch?: string
 }
 
-export interface IRawTime {
+export interface RawTime {
 	from?: Date
 	to?: Date
 	field?: string
 }
 
-interface IMongoParseableQuery {
-	match: IMongoParseableMatch
-	sort: IMongoParseableSort
-	paginate: IMongoParseablePaginate
+interface MongoParseableQuery {
+	match: MongoParseableMatch
+	sort: MongoParseableSort
+	paginate: MongoParseablePaginate
 }
 
-interface IRawPaginate {
+interface RawPaginate {
 	pageSize: string
 	page: string
 }
 
-interface IMongoParseablePaginate {
+interface MongoParseablePaginate {
 	limit: number
 	skip: number
 }
 
-interface IMongoParseableMatch {
+interface MongoParseableMatch {
 	[key: string]: string | any
 	$text?: {
 		[key: string]: any
 		$search: string
 	}
-	'timestamps.createdAt'?: IMongoParseableTime
+	'timestamps.createdAt'?: MongoParseableTime
 }
 
-interface IMongoParseableTime {
+interface MongoParseableTime {
 	[key: string]: Date | undefined
 	gte?: Date
 	lte?: Date
 }
 
-interface IMongoParseableSort {
+interface MongoParseableSort {
 	[key: string]: 1 | -1
 }
 
-interface IConvertOption {
+interface ConvertOption {
 	to: 'number' | 'string' | 'objectID'
 	keys: string
 }
 
-interface ILookUpOption {
+interface LookUpOption {
 	from: string
 	localField: string
 	foreignField: string
@@ -276,9 +284,10 @@ interface ILookUpOption {
 	justOne?: boolean
 }
 
-interface IGetPipelineOptions {
-	convert?: IConvertOption[]
-	lookup?: ILookUpOption[]
+interface PipelineOptions {
+	convert?: ConvertOption[]
+	lookup?: LookUpOption[]
+	performLookupsPreMatch?: boolean
 }
 
 // TODO Fix Pipeline type to support a dynamic set of arguments at the beginning of type LookupStage | UnwindStage and ending with 3 hard-coded places

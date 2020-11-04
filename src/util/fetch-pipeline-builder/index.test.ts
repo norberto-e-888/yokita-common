@@ -84,7 +84,7 @@ describe('FetchPipelineBuilder', () => {
 		expect($limit).toBe(25)
 	})
 
-	it('Adds a $lookup stage per lookup option at the beginning of the pipeline, with an adjacent subsequent $unwind stage when the justOne option is true', () => {
+	it('Adds a $lookup stage per lookup option at the beginning of the pipeline when the performLookupsPreMatch option is true, with an adjacent subsequent $unwind stage when the justOne option is true', () => {
 		const lookupOption1: LookupOption = {
 			localField: 'local',
 			foreignField: 'foreign',
@@ -113,6 +113,7 @@ describe('FetchPipelineBuilder', () => {
 			{},
 			{
 				lookup: [lookupOption1, lookupOption2, lookupOption3],
+				performLookupsPreMatch: true,
 			}
 		)
 
@@ -145,7 +146,7 @@ describe('FetchPipelineBuilder', () => {
 		expect((unwind3 as UnwindStage).$unwind.path).toBe('$' + lookupOption3.as)
 	})
 
-	it('Adds a $lookup stage per lookup option at the beginning of the pipeline, without an $unwind stage when the justOne option is false', () => {
+	it('Adds a $lookup stage per lookup option at the beginning of the pipeline when the performLookupsPreMatch option is true, without an $unwind stage when the justOne option is false', () => {
 		const lookupOption1: LookupOption = {
 			localField: 'local',
 			foreignField: 'foreign',
@@ -174,6 +175,7 @@ describe('FetchPipelineBuilder', () => {
 			{},
 			{
 				lookup: [lookupOption1, lookupOption2, lookupOption3],
+				performLookupsPreMatch: true,
 			}
 		)
 
