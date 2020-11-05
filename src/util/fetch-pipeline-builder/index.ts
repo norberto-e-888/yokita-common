@@ -44,7 +44,7 @@ export default class {
 			.buildSort()
 			.buildPaginate()
 			.addTextSearchToMatch()
-		/* 	.transformOperators() */
+			.transformOperators()
 
 		const lookups: (LookupStage | UnwindStage)[] = []
 		this.lookup.forEach(({ from, localField, foreignField, as, justOne }) => {
@@ -207,8 +207,10 @@ export default class {
 	private transformOperators(): this {
 		const transformedMatch: any = Object.assign(this.mongoParseableQuery.match)
 		Object.entries(this.mongoParseableQuery.match).forEach(([key, value]) => {
+			console.log(key, value, '210')
 			if (typeof value === 'object' && key !== '$text') {
 				Object.keys(value).forEach((operator) => {
+					console.log(operator, 'operator')
 					if (/\b(eq|gt|gte|lt|lte|ne|not|nin)\b/g.test(operator)) {
 						transformedMatch[key] = {
 							...transformedMatch[key],
