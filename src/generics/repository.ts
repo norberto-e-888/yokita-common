@@ -37,9 +37,9 @@ export default class GenericRepository<D extends Document, O = any> {
 
 	async fetch(query: any): Promise<FetchingResult<D>> {
 		const fetchPipelineBuilder = new FetchPipelineBuilder(query)
-		const data = ((await this.model.aggregate(
+		const [data] = ((await this.model.aggregate(
 			fetchPipelineBuilder.pipeline
-		)) as unknown) as FetchingResult<D>
+		)) as unknown) as [FetchingResult<D>]
 
 		return data
 	}
