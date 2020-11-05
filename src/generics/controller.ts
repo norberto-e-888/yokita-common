@@ -16,6 +16,7 @@ export default class GenericController<
 	readonly repository: Repository
 	constructor(repository: Repository) {
 		this.repository = repository
+		this.handleFetch = this.handleFetch.bind(this)
 	}
 
 	handleCreate(options: CreateOptions) {
