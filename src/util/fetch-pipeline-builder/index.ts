@@ -84,7 +84,7 @@ export default class {
 			},
 			{
 				$facet: {
-					count: [{ $count: 1 }],
+					count: [{ $count: 'total' }],
 					data: [
 						{ $sort: this.mongoParseableQuery.sort },
 						{ $skip: this.mongoParseableQuery.paginate.skip },
