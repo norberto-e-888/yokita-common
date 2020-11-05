@@ -284,7 +284,7 @@ interface LookUpOption {
 	justOne?: boolean
 }
 
-interface PipelineOptions {
+export interface PipelineOptions {
 	convert?: ConvertOption[]
 	lookup?: LookUpOption[]
 	performLookupsPreMatch?: boolean

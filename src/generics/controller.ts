@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import { Document } from 'mongoose'
 import { Service } from 'typedi'
 import { GenericRepository } from '.'
+import { PipelineOptions } from '../util'
 import {
 	CreateOptions,
 	DeleteByIdOptions,
@@ -16,7 +17,6 @@ export default class GenericController<
 	readonly repository: Repository
 	constructor(repository: Repository) {
 		this.repository = repository
-		this.handleFetch = this.handleFetch.bind(this)
 	}
 
 	handleCreate(options: CreateOptions) {
@@ -30,12 +30,14 @@ export default class GenericController<
 		}
 	}
 
-	async handleFetch(req: Request, res: Response, next: NextFunction) {
-		try {
-			const data = await this.repository.fetch(req.query)
-			return res.json(data)
-		} catch (error) {
-			return next(error)
+	handleFetch(options: PipelineOptions) {
+		return async (req: Request, res: Response, next: NextFunction) => {
+			try {
+				const data = await this.repository.fetch(req.query, options)
+				return res.json(data)
+			} catch (error) {
+				return next(error)
+			}
 		}
 	}
 

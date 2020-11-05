@@ -7,6 +7,7 @@ import {
 } from 'mongoose'
 import { Service } from 'typedi'
 import { AppError, FetchPipelineBuilder } from '../util'
+import { PipelineOptions } from '../util'
 
 @Service()
 export default class GenericRepository<D extends Document, O = any> {
@@ -35,8 +36,11 @@ export default class GenericRepository<D extends Document, O = any> {
 		return returnPlainObject ? (document.toObject() as O) : document
 	}
 
-	async fetch(query: any): Promise<FetchingResult<D>> {
-		const fetchPipelineBuilder = new FetchPipelineBuilder(query)
+	async fetch(
+		query: any,
+		options: PipelineOptions
+	): Promise<FetchingResult<D>> {
+		const fetchPipelineBuilder = new FetchPipelineBuilder(query, options)
 		const [data] = ((await this.model.aggregate(
 			fetchPipelineBuilder.pipeline
 		)) as unknown) as [FetchingResult<D>]
