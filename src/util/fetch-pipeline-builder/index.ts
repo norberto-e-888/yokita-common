@@ -115,8 +115,12 @@ export default class {
 							ClassToConverTo = String
 							break
 
-						case 'objectID':
+						case 'objectId':
 							ClassToConverTo = Types.ObjectId
+							break
+
+						case 'boolean':
+							ClassToConverTo = Boolean
 							break
 
 						default:
@@ -272,7 +276,7 @@ interface MongoParseableSort {
 }
 
 interface ConvertOption {
-	to: 'number' | 'string' | 'objectID'
+	to: 'number' | 'string' | 'objectId' | 'boolean'
 	keys: string
 }
 
