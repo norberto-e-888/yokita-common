@@ -29,6 +29,15 @@ export default class GenericController<
 		}
 	}
 
+	async handleFetch(req: Request, res: Response, next: NextFunction) {
+		try {
+			const data = await this.repository.fetch(req.query)
+			return res.json(data)
+		} catch (error) {
+			return next(error)
+		}
+	}
+
 	handleFindById(options: FindByIdOptions) {
 		return async (req: Request, res: Response, next: NextFunction) => {
 			try {

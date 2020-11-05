@@ -6,7 +6,7 @@ import {
 	SaveOptions,
 } from 'mongoose'
 import { Service } from 'typedi'
-import { AppError } from '../util'
+import { AppError, FetchPipelineBuilder } from '../util'
 
 @Service()
 export default class GenericRepository<D extends Document, O = any> {
@@ -33,6 +33,15 @@ export default class GenericRepository<D extends Document, O = any> {
 	): Promise<D | O> {
 		const document = await this.model.create<DTO>(dto, nativeMongooseOptions)
 		return returnPlainObject ? (document.toObject() as O) : document
+	}
+
+	async fetch(query: any): Promise<FetchingResult<D>> {
+		const fetchPipelineBuilder = new FetchPipelineBuilder(query)
+		const data = ((await this.model.aggregate(
+			fetchPipelineBuilder.pipeline
+		)) as unknown) as FetchingResult<D>
+
+		return data
 	}
 
 	async findById(
@@ -151,6 +160,10 @@ export type UpdateByIdOptions = CommonActionByIdOptions & {
 }
 
 export type DeleteByIdOptions = CommonActionByIdOptions
+export type FetchingResult<D> = {
+	count: number
+	items: D[]
+}
 
 interface CommonActionByIdOptions {
 	failIfNotFound?: boolean
