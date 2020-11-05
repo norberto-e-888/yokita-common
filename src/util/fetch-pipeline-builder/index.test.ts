@@ -206,13 +206,17 @@ describe('FetchPipelineBuilder', () => {
 					d: new Types.ObjectId().toHexString(),
 					e: '500',
 					f: 2,
+					g: 'false',
+					h: 'true',
+					i: 'any-other-value-other-than-"true"',
 				},
 			},
 			{
 				convert: [
 					{ keys: 'a,f', to: 'string' },
 					{ keys: 'b,e', to: 'number' },
-					{ keys: 'c,d', to: 'objectID' },
+					{ keys: 'c,d', to: 'objectId' },
+					{ keys: 'g,h,i', to: 'boolean' },
 				],
 			}
 		)
@@ -224,6 +228,9 @@ describe('FetchPipelineBuilder', () => {
 		expect(Types.ObjectId.isValid($match.d.toHexString())).toBeTruthy()
 		expect(typeof $match.e).toBe('number')
 		expect(typeof $match.f).toBe('string')
+		expect($match.g).toBe(false)
+		expect($match.h).toBe(true)
+		expect($match.i).toBe(false)
 	})
 
 	it('Adds a final $unwind stage to unwind $count', () => {

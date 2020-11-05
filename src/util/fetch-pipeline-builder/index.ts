@@ -120,14 +120,20 @@ export default class {
 							break
 
 						case 'boolean':
-							ClassToConverTo = Boolean
+							// ! no need to set ClassToConvertTo to Boolean as we are overriding the default behaviour of constructing a boolean which is to set falsies to false and truthies to true,
+							// ! instead we are interpreting the literal "true" as true and any other thing as false
+							// ! however we add this case to the switch to prevent throwing
 							break
 
 						default:
 							throw '[QueryTransformation.converTo] "to" is invalid.'
 					}
 
-					const transformedValue = ClassToConverTo(value)
+					const transformedValue =
+						convertion.to === 'boolean'
+							? value === 'true'
+							: ClassToConverTo(value)
+
 					mongoParseableMatch[key] = transformedValue
 				}
 			})
