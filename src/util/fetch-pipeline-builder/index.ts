@@ -44,7 +44,7 @@ export default class {
 			.buildSort()
 			.buildPaginate()
 			.addTextSearchToMatch()
-			.transformOperators()
+		/* 	.transformOperators() */
 
 		const lookups: (LookupStage | UnwindStage)[] = []
 		this.lookup.forEach(({ from, localField, foreignField, as, justOne }) => {
