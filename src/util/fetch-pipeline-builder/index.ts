@@ -230,7 +230,7 @@ export interface RawQuery {
 	textSearch?: string
 }
 
-export interface RawTime {
+interface RawTime {
 	from?: Date
 	to?: Date
 	field?: string
