@@ -42,5 +42,8 @@
 	"jest": {
 		"preset": "ts-jest",
 		"testEnvironment": "node"
+	},
+	"resolutions": {
+		"jest-diff": "25.1.0"
 	}
 }
