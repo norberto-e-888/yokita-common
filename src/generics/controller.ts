@@ -30,7 +30,7 @@ export default class GenericController<
 		}
 	}
 
-	handleFetch(options: PipelineOptions) {
+	handleFetch(options?: PipelineOptions) {
 		return async (req: Request, res: Response, next: NextFunction) => {
 			try {
 				const data = await this.repository.fetch(req.query, options)
