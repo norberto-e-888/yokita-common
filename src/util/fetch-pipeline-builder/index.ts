@@ -127,10 +127,7 @@ export default class {
 							throw '[QueryTransformation.converTo] "to" is invalid.'
 					}
 
-					const transformedValue = ClassToConverTo(
-						convertion.to === 'boolean' ? value === 'true' : value
-					)
-
+					const transformedValue = ClassToConverTo(value)
 					mongoParseableMatch[key] = transformedValue
 				}
 			})
