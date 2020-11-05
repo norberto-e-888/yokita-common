@@ -40,9 +40,7 @@ export default class GenericRepository<D extends Document, O = any> {
 		query: any,
 		options?: PipelineOptions
 	): Promise<FetchingResult<D>> {
-		console.log('QUERY', query)
 		const fetchPipelineBuilder = new FetchPipelineBuilder(query, options)
-		console.log('PIPELINE', JSON.stringify(fetchPipelineBuilder.pipeline))
 		const [data] = ((await this.model.aggregate(
 			fetchPipelineBuilder.pipeline
 		)) as unknown) as [FetchingResult<D>]
