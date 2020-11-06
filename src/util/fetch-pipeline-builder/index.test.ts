@@ -206,9 +206,9 @@ describe('FetchPipelineBuilder', () => {
 					d: new Types.ObjectId().toHexString(),
 					e: '500',
 					f: 2,
-					g: 'false',
+					g: '',
 					h: 'true',
-					i: 'any-other-value-other-than-"true"',
+					i: 'all-non-empty-strings-will-be-converted-to-true',
 				},
 			},
 			{
@@ -230,7 +230,7 @@ describe('FetchPipelineBuilder', () => {
 		expect(typeof $match.f).toBe('string')
 		expect($match.g).toBe(false)
 		expect($match.h).toBe(true)
-		expect($match.i).toBe(false)
+		expect($match.i).toBe(true)
 	})
 
 	it('Adds a final $unwind stage to unwind $count', () => {
