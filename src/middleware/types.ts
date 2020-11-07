@@ -1,6 +1,5 @@
 import { Request } from 'express'
-import { Document } from 'mongoose'
 
-export interface AuthenticatedRequest<T extends Document> extends Request {
+export interface AuthenticatedRequest<T> extends Request {
 	user?: T
 }

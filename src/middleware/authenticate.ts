@@ -1,10 +1,9 @@
 import { NextFunction, Response } from 'express'
 import jsonwebtoken from 'jsonwebtoken'
-import { Document } from 'mongoose'
 import { AppError } from '../util'
 import { AuthenticatedRequest } from './types'
 
-export default <User extends Document>({
+export default <User>({
 	jwtSecret,
 	jwtIn = 'cookies',
 	jwtKeyName = 'jwt',
