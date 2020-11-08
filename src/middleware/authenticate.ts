@@ -3,13 +3,14 @@ import jsonwebtoken from 'jsonwebtoken'
 import { AppError } from '../util'
 import { AuthenticatedRequest } from './types'
 
-export default <User>({
+export default <User extends { role?: string }>({
 	jwtSecret,
 	jwtIn = 'cookies',
 	jwtKeyName = 'jwt',
 	decodedJWTUserPropertyKey = 'user',
 	ignoreExpirationURLs = [],
 	isProtected = true,
+	limitToRoles,
 }: IAuthenticateOptions) => (
 	req: AuthenticatedRequest<User>,
 	_: Response,
@@ -34,6 +35,15 @@ export default <User>({
 				? decoded[decodedJWTUserPropertyKey]
 				: decoded
 
+		if (
+			req.user &&
+			limitToRoles &&
+			req.user.role &&
+			!limitToRoles.includes(req.user.role)
+		) {
+			return next(new AppError('Unauthorized', 403))
+		}
+
 		next()
 	} catch (error) {
 		return next(new AppError('Unauthenticated', 401))
@@ -47,4 +57,5 @@ export interface IAuthenticateOptions {
 	decodedJWTUserPropertyKey?: string
 	ignoreExpirationURLs?: string[]
 	isProtected?: boolean
+	limitToRoles: string[]
 }
