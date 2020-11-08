@@ -57,5 +57,5 @@ export interface IAuthenticateOptions {
 	decodedJWTUserPropertyKey?: string
 	ignoreExpirationURLs?: string[]
 	isProtected?: boolean
-	limitToRoles: string[]
+	limitToRoles?: string[]
 }
