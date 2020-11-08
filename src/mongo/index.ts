@@ -1,10 +1,7 @@
 import { Document, HookNextFunction, UpdateQuery } from 'mongoose'
 
-export function handlePreFindOneAndUpdateVersionIncrement(
-	this: UpdateQuery<Document>,
-	versionKey: string
-) {
-	return (next: HookNextFunction) => {
+export function handlePreFindOneAndUpdateVersionIncrement(versionKey: string) {
+	return function (this: UpdateQuery<Document>, next: HookNextFunction) {
 		const update = this.getUpdate()
 		if (update[versionKey] !== null) {
 			delete update[versionKey]
