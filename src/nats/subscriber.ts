@@ -24,7 +24,6 @@ export default abstract class Subscriber<
 	}
 
 	listen() {
-		console.log('HERE', this.subject)
 		const subscription = this.stan.subscribe(
 			this.subject as string,
 			this.queueGroupName,
