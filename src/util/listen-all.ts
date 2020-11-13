@@ -1,15 +1,8 @@
 import Container from 'typedi'
-import { NATSSubscriber } from '../nats'
 
-export default (subscribers: ListenAllIterable) => {
-	Object.values(subscribers).forEach((x) => {
+export default (subscribers: any) => {
+	Object.values(subscribers).forEach((S) => {
 		// @ts-ignore
-		Container.get(x).listen()
+		Container.get(S).listen()
 	})
 }
-
-export type ListenAllIterable =
-	| {
-			[key: string]: NATSSubscriber<any>
-	  }
-	| ArrayLike<NATSSubscriber<any>>
