@@ -10,15 +10,15 @@ export class GenericReplicaNATSSubscriber<
 	M extends Model<D>
 > extends NATSSubscriber<Event<S, D>> {
 	readonly subject: S
-	readonly queueGroupName: string
 	readonly type: GenericReplicaNATSSubscriberType
+	readonly queueGroupName: string
 	readonly model: M
 
 	constructor(options: GenericReplicaNATSSubscriberOptions<S, D, M>) {
 		super()
 		this.subject = options.subject
-		this.queueGroupName = options.queueGroupName
 		this.type = options.type
+		this.queueGroupName = Container.get(options.queueGroupNameToken)
 		this.model = Container.get(options.modelToken)
 	}
 
@@ -65,7 +65,7 @@ export interface GenericReplicaNATSSubscriberOptions<
 	M extends Model<D>
 > {
 	subject: S
-	queueGroupName: string
+	queueGroupNameToken: Token<string>
 	modelToken: Token<M>
 	type: GenericReplicaNATSSubscriberType
 }
