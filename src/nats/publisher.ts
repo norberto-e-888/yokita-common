@@ -1,10 +1,9 @@
 import { Stan } from 'node-nats-streaming'
 import { Inject, Service } from 'typedi'
 import { STANToken } from './constants'
-import { Event } from './types'
 
 @Service()
-export default abstract class Publisher<D> {
+export default class Publisher<D> {
 	@Inject(STANToken)
 	private readonly stan: Stan
 
