@@ -5,7 +5,8 @@ import {
 	QueryFindOneAndUpdateOptions,
 	SaveOptions,
 } from 'mongoose'
-import { Service } from 'typedi'
+import { Inject, Service } from 'typedi'
+import Publisher from '../nats/publisher'
 import { AppError, FetchPipelineBuilder } from '../util'
 import { PipelineOptions } from '../util'
 
@@ -14,11 +15,17 @@ export default class GenericRepository<D extends Document, O = any> {
 	readonly model: Model<D>
 	readonly documentNameSingular: string
 	readonly documentNamePlular: string
+	readonly natsSubjects: GenericRepositoryNatsSubject
+
+	@Inject()
+	private readonly publisher: Publisher<O>
+
 	constructor(
 		model: Model<D>,
 		{
 			documentNameSingular,
 			documentNamePlular,
+			natsSubjects = {},
 		}: GenericRepositoryConstructorOptions
 	) {
 		this.model = model
@@ -26,6 +33,8 @@ export default class GenericRepository<D extends Document, O = any> {
 		this.documentNamePlular = documentNamePlular
 			? documentNamePlular
 			: `${documentNameSingular.toLocaleLowerCase()}s`
+
+		this.natsSubjects = natsSubjects
 	}
 
 	async create<DTO>(
@@ -33,6 +42,13 @@ export default class GenericRepository<D extends Document, O = any> {
 		{ returnPlainObject = false, nativeMongooseOptions }: CreateOptions
 	): Promise<D | O> {
 		const document = await this.model.create<DTO>(dto, nativeMongooseOptions)
+		if (this.natsSubjects.create) {
+			await this.publisher.publish(
+				this.natsSubjects.create,
+				document.toObject()
+			)
+		}
+
 		return returnPlainObject ? (document.toObject() as O) : document
 	}
 
@@ -107,6 +123,13 @@ export default class GenericRepository<D extends Document, O = any> {
 			throw new AppError(`No ${this.documentNameSingular} was found.`, 404)
 		}
 
+		if (this.natsSubjects.update && document) {
+			await this.publisher.publish(
+				this.natsSubjects.update,
+				document.toObject()
+			)
+		}
+
 		return returnPlainObject
 			? document
 				? (document.toObject() as O)
@@ -140,6 +163,13 @@ export default class GenericRepository<D extends Document, O = any> {
 			throw new AppError(`No ${this.documentNameSingular} was found.`, 404)
 		}
 
+		if (this.natsSubjects.delete && document) {
+			await this.publisher.publish(
+				this.natsSubjects.delete,
+				document.toObject()
+			)
+		}
+
 		return returnPlainObject
 			? document
 				? (document.toObject() as O)
@@ -151,11 +181,18 @@ export default class GenericRepository<D extends Document, O = any> {
 export type GenericRepositoryConstructorOptions = {
 	documentNameSingular: string
 	documentNamePlular?: string
+	natsSubjects?: GenericRepositoryNatsSubject
 }
 
 export type CreateOptions = {
 	returnPlainObject?: boolean
 	nativeMongooseOptions?: SaveOptions
+}
+
+export type GenericRepositoryNatsSubject = {
+	create?: string
+	update?: string
+	delete?: string
 }
 
 export type FindByIdOptions = CommonActionByIdOptions

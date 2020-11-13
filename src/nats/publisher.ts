@@ -4,16 +4,13 @@ import { STANToken } from './constants'
 import { Event } from './types'
 
 @Service()
-export default abstract class Publisher<
-	T extends Event<T['subject'], T['data']>
-> {
+export default abstract class Publisher<D> {
 	@Inject(STANToken)
 	private readonly stan: Stan
-	abstract subject: T['subject']
 
-	publish(data: T['data']): Promise<void> {
+	publish(subject: string, data: D): Promise<void> {
 		return new Promise((resolve, reject) => {
-			this.stan.publish(this.subject as string, JSON.stringify(data), (err) => {
+			this.stan.publish(subject as string, JSON.stringify(data), (err) => {
 				if (err) {
 					return reject(err)
 				}
