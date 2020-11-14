@@ -1,6 +1,7 @@
 import { Document, Model } from 'mongoose'
 import { Message } from 'node-nats-streaming'
 import Container, { Service, Token } from 'typedi'
+import { natsQueueGroupNameToken } from '..'
 import { Event, NATSSubscriber } from '../nats'
 
 @Service()
@@ -18,7 +19,7 @@ export class GenericReplicaNATSSubscriber<
 		super()
 		this.subject = options.subject
 		this.type = options.type
-		this.queueGroupName = options.queueGroupName
+		this.queueGroupName = Container.get(natsQueueGroupNameToken)
 		this.model = Container.get(options.modelToken)
 	}
 
@@ -66,7 +67,6 @@ export interface GenericReplicaNATSSubscriberOptions<
 > {
 	subject: S
 	type: GenericReplicaNATSSubscriberType
-	queueGroupName: string
 	modelToken: Token<M>
 }
 
