@@ -24,10 +24,7 @@ export class GenericReplicaNATSSubscriber<
 
 	async onMessage(data: D, msg: Message): Promise<void> {
 		try {
-			console.log('EVENT RECEIVED', this.subject)
-			console.log('DATA', data)
 			if (this.type === 'create') {
-				console.log('REPLICATING DATA')
 				await this.model.create<any>(data)
 				return msg.ack()
 			}
