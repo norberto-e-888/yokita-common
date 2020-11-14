@@ -15,7 +15,7 @@ export class GenericReplicaNATSSubscriber<
 	readonly queueGroupName: string
 	readonly model: M
 
-	constructor(options: GenericReplicaNATSSubscriberOptions<S, D, M>, model: M) {
+	constructor(options: GenericReplicaNATSSubscriberOptions<S>, model: M) {
 		super()
 		this.subject = options.subject
 		this.type = options.type
@@ -60,11 +60,7 @@ export class GenericReplicaNATSSubscriber<
 	}
 }
 
-export interface GenericReplicaNATSSubscriberOptions<
-	S,
-	D extends Document,
-	M extends Model<D>
-> {
+export interface GenericReplicaNATSSubscriberOptions<S> {
 	subject: S
 	type: GenericReplicaNATSSubscriberType
 }
