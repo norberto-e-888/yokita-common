@@ -15,12 +15,12 @@ export class GenericReplicaNATSSubscriber<
 	readonly queueGroupName: string
 	readonly model: M
 
-	constructor(options: GenericReplicaNATSSubscriberOptions<S, D, M>) {
+	constructor(options: GenericReplicaNATSSubscriberOptions<S, D, M>, model: M) {
 		super()
 		this.subject = options.subject
 		this.type = options.type
 		this.queueGroupName = Container.get(natsQueueGroupNameToken)
-		this.model = Container.get(options.modelToken)
+		this.model = model
 	}
 
 	async onMessage(data: D, msg: Message): Promise<void> {
@@ -66,7 +66,6 @@ export interface GenericReplicaNATSSubscriberOptions<
 	M extends Model<D>
 > {
 	subject: S
-	modelToken: Token<M>
 	type: GenericReplicaNATSSubscriberType
 }
 
