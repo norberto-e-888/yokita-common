@@ -1,4 +1,10 @@
-import { Document, HookNextFunction, UpdateQuery } from 'mongoose'
+import {
+	Document,
+	DocumentQuery,
+	HookNextFunction,
+	Model,
+	UpdateQuery
+} from 'mongoose'
 
 export function handlePreFindOneAndUpdateVersionIncrement(versionKey: string) {
 	return function (this: UpdateQuery<Document>, next: HookNextFunction) {
@@ -22,3 +28,18 @@ export function handlePreFindOneAndUpdateVersionIncrement(versionKey: string) {
 		next()
 	}
 }
+
+export type MongooseInstanceHook<D extends Document> = (
+	this: D,
+	next: HookNextFunction
+) => Promise<void>
+
+export type MongooseStaticHook<D extends Document> = (
+	this: Model<D>,
+	next: HookNextFunction
+) => Promise<void>
+
+export type MongooseQueryHook<D extends Document> = (
+	this: DocumentQuery<any, D>,
+	next: HookNextFunction
+) => Promise<void>
