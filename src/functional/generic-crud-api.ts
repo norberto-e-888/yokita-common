@@ -33,7 +33,7 @@ export interface GenericCrudApiDependencies {
 
 export interface GenericCrudApiOptions {
 	create: CreateOptions
-	fetch: PipelineOptions
+	fetch?: PipelineOptions
 	findById: FindByIdOptions
 	updateById: UpdateByIdOptions
 	deleteById: DeleteByIdOptions
