@@ -17,9 +17,11 @@ export default class GenericRepository<D extends Document, O = any> {
 	readonly documentNamePlular: string
 
 	constructor({
+		model,
 		documentNameSingular,
 		documentNamePlular
-	}: GenericRepositoryConstructorOptions) {
+	}: GenericRepositoryConstructorOptions<D>) {
+		this.model = model
 		this.documentNameSingular = documentNameSingular.toLocaleLowerCase()
 		this.documentNamePlular = documentNamePlular
 			? documentNamePlular
@@ -146,7 +148,8 @@ export default class GenericRepository<D extends Document, O = any> {
 	}
 }
 
-export type GenericRepositoryConstructorOptions = {
+export type GenericRepositoryConstructorOptions<D extends Document> = {
+	model: Model<D>
 	documentNameSingular: string
 	documentNamePlular?: string
 	natsSubjects?: GenericRepositoryNatsSubject

@@ -1,20 +1,23 @@
 import { NextFunction, Request, Response } from 'express'
 import { Document } from 'mongoose'
 import { Service } from 'typedi'
-import { GenericRepository } from '.'
+import { PlainRepository } from '.'
 import { PipelineOptions } from '../util'
 import {
 	CreateOptions,
 	DeleteByIdOptions,
 	FindByIdOptions,
-	UpdateByIdOptions,
+	UpdateByIdOptions
 } from './repository'
 
 @Service()
 export default class GenericController<
-	Repository extends GenericRepository<Document, unknown & { id: string }>
+	Repository extends PlainRepository<Document, unknown & { id: string }>
 > {
 	readonly repository: Repository
+	constructor(repository: Repository) {
+		this.repository = repository
+	}
 
 	handleCreate(options: CreateOptions) {
 		return async (req: Request, res: Response, next: NextFunction) => {
