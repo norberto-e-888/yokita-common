@@ -1,3 +1,4 @@
+export * from './functional'
 export * from './generics'
 export * from './handlers'
 export * from './middleware'
