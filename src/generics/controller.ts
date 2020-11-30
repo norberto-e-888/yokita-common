@@ -15,9 +15,6 @@ export default class GenericController<
 	Repository extends GenericRepository<Document, unknown & { id: string }>
 > {
 	readonly repository: Repository
-	constructor(repository: Repository) {
-		this.repository = repository
-	}
 
 	handleCreate(options: CreateOptions) {
 		return async (req: Request, res: Response, next: NextFunction) => {
