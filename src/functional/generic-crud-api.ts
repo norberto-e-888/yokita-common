@@ -10,19 +10,36 @@ import { GenericFunctionalController } from './generic-controller'
 
 export const genericCrudApiFactory = (
 	deps: GenericCrudApiDependencies,
-	opts: GenericCrudApiOptions
+	{
+		createOptions = { returnPlainObject: true },
+		fetchOptions,
+		findByIdOptions = { returnPlainObject: true },
+		updateByIdOptions = {
+			returnPlainObject: true,
+			nativeMongooseOptions: { new: true }
+		},
+		deleteByIdOptions = { returnPlainObject: true }
+	}: GenericCrudApiOptions = {
+		createOptions: { returnPlainObject: true },
+		findByIdOptions: { returnPlainObject: true },
+		updateByIdOptions: {
+			returnPlainObject: true,
+			nativeMongooseOptions: { new: true }
+		},
+		deleteByIdOptions: { returnPlainObject: true }
+	}
 ): Router => {
 	const router = Router()
 	router
 		.route('/')
-		.post(deps.controller.handleCreate(opts.create))
-		.get(deps.controller.handleFetch(opts.fetch))
+		.post(deps.controller.handleCreate(createOptions))
+		.get(deps.controller.handleFetch(fetchOptions))
 
 	router
 		.route('/id')
-		.get(deps.controller.handleFindById(opts.findById))
-		.patch(deps.controller.handleUpdateById(opts.updateById))
-		.delete(deps.controller.handleDeleteById(opts.deleteById))
+		.get(deps.controller.handleFindById(findByIdOptions))
+		.patch(deps.controller.handleUpdateById(updateByIdOptions))
+		.delete(deps.controller.handleDeleteById(deleteByIdOptions))
 
 	return router
 }
@@ -32,9 +49,9 @@ export interface GenericCrudApiDependencies {
 }
 
 export interface GenericCrudApiOptions {
-	create: CreateOptions
-	fetch?: PipelineOptions
-	findById: FindByIdOptions
-	updateById: UpdateByIdOptions
-	deleteById: DeleteByIdOptions
+	createOptions: CreateOptions
+	fetchOptions?: PipelineOptions
+	findByIdOptions: FindByIdOptions
+	updateByIdOptions: UpdateByIdOptions
+	deleteByIdOptions: DeleteByIdOptions
 }
