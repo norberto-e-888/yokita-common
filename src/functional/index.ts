@@ -1,2 +1,2 @@
-export { genericControllerFactory } from './generic-controller'
-export { genericRepositoryFactory } from './generic-repository'
+export * from './generic-controller'
+export * from './generic-repository'
