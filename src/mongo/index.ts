@@ -3,6 +3,10 @@ import {
 	DocumentQuery,
 	HookNextFunction,
 	Model,
+	SchemaDefinition,
+	SchemaOptions,
+	SchemaTypeOpts,
+	Types,
 	UpdateQuery
 } from 'mongoose'
 
@@ -29,6 +33,18 @@ export function handlePreFindOneAndUpdateVersionIncrement(versionKey: string) {
 	}
 }
 
+export const modelCommonSchemaOptions: SchemaOptions = {
+	id: true,
+	toObject: {
+		virtuals: true,
+		getters: true
+	},
+	timestamps: {
+		createdAt: 'timestamps.createdAt',
+		updatedAt: 'timestamps.updatedAt'
+	}
+}
+
 export type MongooseInstanceHook<D extends Document> = (
 	this: D,
 	next: HookNextFunction
@@ -43,3 +59,23 @@ export type MongooseQueryHook<D extends Document> = (
 	this: DocumentQuery<any, D>,
 	next: HookNextFunction
 ) => Promise<void>
+
+export interface Timestamps {
+	createdAt: Date
+	updatedAt: Date
+}
+
+export type DocumentReference = Types.ObjectId | string
+
+export interface CommonProperties {
+	_id: DocumentReference
+	id: string
+	__v: number
+	timestamps: Timestamps
+}
+
+export type MongooseSchemaDefinition<T> = {
+	[K in keyof Required<Omit<T, keyof CommonProperties>>]:
+		| SchemaDefinition
+		| SchemaTypeOpts<any>
+}
