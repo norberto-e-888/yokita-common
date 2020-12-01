@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import { Router, Handler } from 'express'
 import {
 	CreateOptions,
 	DeleteByIdOptions,
@@ -11,14 +11,27 @@ import { GenericFunctionalController } from './generic-controller'
 export const genericCrudApiFactory = (
 	deps: GenericCrudApiDependencies,
 	{
-		createOptions = { returnPlainObject: true },
+		createOptions: { middleware: createMiddleware = [], ...createOptions } = {
+			returnPlainObject: true
+		},
 		fetchOptions,
-		findByIdOptions = { returnPlainObject: true },
-		updateByIdOptions = {
+		findByIdOptions: {
+			middleware: findByIdMiddleware = [],
+			...findByIdOptions
+		} = { returnPlainObject: true },
+		updateByIdOptions: {
+			middleware: updateByIdMiddleware = [],
+			...updateByIdOptions
+		} = {
 			returnPlainObject: true,
 			nativeMongooseOptions: { new: true }
 		},
-		deleteByIdOptions = { returnPlainObject: true }
+		deleteByIdOptions: {
+			middleware: deleteMiddleware = [],
+			...deleteByIdOptions
+		} = {
+			returnPlainObject: true
+		}
 	}: GenericCrudApiOptions = {
 		createOptions: { returnPlainObject: true },
 		findByIdOptions: { returnPlainObject: true },
@@ -32,14 +45,23 @@ export const genericCrudApiFactory = (
 	const router = Router()
 	router
 		.route('/')
-		.post(deps.controller.handleCreate(createOptions))
-		.get(deps.controller.handleFetch(fetchOptions))
+		.post(createMiddleware, deps.controller.handleCreate(createOptions))
+		.get(
+			fetchOptions?.middleware || [],
+			deps.controller.handleFetch(fetchOptions)
+		)
 
 	router
 		.route('/id')
-		.get(deps.controller.handleFindById(findByIdOptions))
-		.patch(deps.controller.handleUpdateById(updateByIdOptions))
-		.delete(deps.controller.handleDeleteById(deleteByIdOptions))
+		.get(findByIdMiddleware, deps.controller.handleFindById(findByIdOptions))
+		.patch(
+			updateByIdMiddleware,
+			deps.controller.handleUpdateById(updateByIdOptions)
+		)
+		.delete(
+			deleteMiddleware,
+			deps.controller.handleDeleteById(deleteByIdOptions)
+		)
 
 	return router
 }
@@ -49,9 +71,11 @@ export interface GenericCrudApiDependencies {
 }
 
 export interface GenericCrudApiOptions {
-	createOptions: CreateOptions
-	fetchOptions?: PipelineOptions
-	findByIdOptions: FindByIdOptions
-	updateByIdOptions: UpdateByIdOptions
-	deleteByIdOptions: DeleteByIdOptions
+	createOptions: CreateOptions & MiddlewareOption
+	fetchOptions?: PipelineOptions & MiddlewareOption
+	findByIdOptions: FindByIdOptions & MiddlewareOption
+	updateByIdOptions: UpdateByIdOptions & MiddlewareOption
+	deleteByIdOptions: DeleteByIdOptions & MiddlewareOption
 }
+
+type MiddlewareOption = { middleware?: [Handler] | [] }
