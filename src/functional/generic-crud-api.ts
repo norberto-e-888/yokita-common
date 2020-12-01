@@ -14,7 +14,9 @@ export const genericCrudApiFactory = (
 		createOptions: { middleware: createMiddleware = [], ...createOptions } = {
 			returnPlainObject: true
 		},
-		fetchOptions,
+		fetchOptions: { middleware: fetchMiddleware = [], ...fetchOptions } = {
+			middleware: []
+		},
 		findByIdOptions: {
 			middleware: findByIdMiddleware = [],
 			...findByIdOptions
@@ -46,10 +48,7 @@ export const genericCrudApiFactory = (
 	router
 		.route('/')
 		.post(createMiddleware, deps.controller.handleCreate(createOptions))
-		.get(
-			fetchOptions?.middleware || [],
-			deps.controller.handleFetch(fetchOptions)
-		)
+		.get(fetchMiddleware, deps.controller.handleFetch(fetchOptions))
 
 	router
 		.route('/id')
@@ -71,11 +70,11 @@ export interface GenericCrudApiDependencies {
 }
 
 export interface GenericCrudApiOptions {
-	createOptions: CreateOptions & MiddlewareOption
+	createOptions?: CreateOptions & MiddlewareOption
 	fetchOptions?: PipelineOptions & MiddlewareOption
-	findByIdOptions: FindByIdOptions & MiddlewareOption
-	updateByIdOptions: UpdateByIdOptions & MiddlewareOption
-	deleteByIdOptions: DeleteByIdOptions & MiddlewareOption
+	findByIdOptions?: FindByIdOptions & MiddlewareOption
+	updateByIdOptions?: UpdateByIdOptions & MiddlewareOption
+	deleteByIdOptions?: DeleteByIdOptions & MiddlewareOption
 }
 
-type MiddlewareOption = { middleware?: [Handler] | [] }
+type MiddlewareOption = { middleware?: Handler[] }
