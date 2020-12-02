@@ -3,7 +3,7 @@ import {
 	Document,
 	Model,
 	QueryFindOneAndUpdateOptions,
-	SaveOptions,
+	SaveOptions
 } from 'mongoose'
 import { Inject, Service } from 'typedi'
 import Publisher from '../nats/publisher'
@@ -25,7 +25,7 @@ export default class GenericRepository<D extends Document, O = any> {
 		{
 			documentNameSingular,
 			documentNamePlular,
-			natsSubjects = {},
+			natsSubjects = {}
 		}: GenericRepositoryConstructorOptions
 	) {
 		this.model = model
@@ -71,11 +71,11 @@ export default class GenericRepository<D extends Document, O = any> {
 			limitToOwner = false,
 			ownerProperty,
 			ownerId,
-			returnPlainObject = false,
+			returnPlainObject = false
 		}: FindByIdOptions = {
 			failIfNotFound: true,
 			limitToOwner: false,
-			returnPlainObject: false,
+			returnPlainObject: false
 		}
 	): Promise<D | O | null> {
 		const document =
@@ -103,12 +103,12 @@ export default class GenericRepository<D extends Document, O = any> {
 			ownerProperty,
 			ownerId,
 			returnPlainObject = false,
-			nativeMongooseOptions = { new: true },
+			nativeMongooseOptions = { new: true }
 		}: UpdateByIdOptions = {
 			failIfNotFound: true,
 			limitToOwner: false,
 			returnPlainObject: false,
-			nativeMongooseOptions: { new: true },
+			nativeMongooseOptions: { new: true }
 		}
 	): Promise<D | O | null> {
 		const document =
@@ -144,18 +144,18 @@ export default class GenericRepository<D extends Document, O = any> {
 			limitToOwner = false,
 			ownerProperty,
 			ownerId,
-			returnPlainObject = false,
+			returnPlainObject = false
 		}: DeleteByIdOptions = {
 			failIfNotFound: true,
 			limitToOwner: false,
-			returnPlainObject: false,
+			returnPlainObject: false
 		}
 	): Promise<D | O | null> {
 		const document =
 			limitToOwner && ownerProperty && ownerId
 				? await this.model.findOneAndDelete({
 						_id: id,
-						[ownerProperty]: ownerId,
+						[ownerProperty]: ownerId
 				  } as any)
 				: await this.model.findByIdAndDelete(id)
 
@@ -206,7 +206,7 @@ export type FetchingResult<D> = {
 	items: D[]
 }
 
-interface CommonActionByIdOptions {
+export interface CommonActionByIdOptions {
 	failIfNotFound?: boolean
 	limitToOwner?: boolean
 	ownerProperty?: string | number | symbol

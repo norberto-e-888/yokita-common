@@ -3,13 +3,17 @@ import {
 	CreateOptions,
 	DeleteByIdOptions,
 	FindByIdOptions,
-	UpdateByIdOptions
+	UpdateByIdOptions,
+	CommonActionByIdOptions
 } from '../generics/repository'
 import { PipelineOptions } from '../util'
 import { GenericFunctionalRepository } from './generic-repository'
 
 export const genericControllerFactory = (
-	deps: GenericFunctionalControllerDependencies
+	deps: GenericFunctionalControllerDependencies,
+	{ userProperty = 'user' }: GenericFunctionalControllerOptions = {
+		userProperty: 'user'
+	}
 ) => {
 	const handleCreate = (opts: CreateOptions) => async (
 		req: Request,
@@ -43,7 +47,14 @@ export const genericControllerFactory = (
 		next: NextFunction
 	) => {
 		try {
-			const document = await deps.repository.findById(req.params.id, opts)
+			const optionsExtension: Pick<CommonActionByIdOptions, 'ownerId'> = {
+				ownerId: req[userProperty].id
+			}
+
+			const document = await deps.repository.findById(
+				req.params.id,
+				Object.assign(opts, optionsExtension)
+			)
 			return res.json(document)
 		} catch (error) {
 			return next(error)
@@ -56,10 +67,14 @@ export const genericControllerFactory = (
 		next: NextFunction
 	) => {
 		try {
+			const optionsExtension: Pick<CommonActionByIdOptions, 'ownerId'> = {
+				ownerId: req[userProperty].id
+			}
+
 			const document = await deps.repository.updateById(
 				req.params.id,
 				req.body,
-				opts
+				Object.assign(opts, optionsExtension)
 			)
 
 			return res.json(document)
@@ -74,8 +89,14 @@ export const genericControllerFactory = (
 		next: NextFunction
 	) => {
 		try {
-			const document = await deps.repository.deleteById(req.params.id, opts)
+			const optionsExtension: Pick<CommonActionByIdOptions, 'ownerId'> = {
+				ownerId: req[userProperty].id
+			}
 
+			const document = await deps.repository.deleteById(
+				req.params.id,
+				Object.assign(opts, optionsExtension)
+			)
 			return res.json(document)
 		} catch (error) {
 			return next(error)
@@ -93,6 +114,10 @@ export const genericControllerFactory = (
 
 export interface GenericFunctionalControllerDependencies {
 	repository: GenericFunctionalRepository
+}
+
+export interface GenericFunctionalControllerOptions {
+	userProperty?: string
 }
 
 export type GenericFunctionalController = ReturnType<

@@ -36,13 +36,14 @@ export const genericRepositoryFactory = <D extends Document, O = any>(
 		id: string,
 		{
 			failIfNotFound = true,
-			limitToOwner = false,
+			limitToOwner = true,
 			returnPlainObject = false,
-			ownerProperty,
+			ownerProperty = 'user',
 			ownerId
 		}: FindByIdOptions = {
 			failIfNotFound: true,
-			limitToOwner: false,
+			limitToOwner: true,
+			ownerProperty: 'user',
 			returnPlainObject: false
 		}
 	): Promise<D | O | null> => {
@@ -63,14 +64,15 @@ export const genericRepositoryFactory = <D extends Document, O = any>(
 		update: Partial<D>,
 		{
 			failIfNotFound = true,
-			limitToOwner = false,
+			limitToOwner = true,
 			returnPlainObject = false,
 			nativeMongooseOptions = { new: true },
-			ownerProperty,
+			ownerProperty = 'user',
 			ownerId
 		}: UpdateByIdOptions = {
 			failIfNotFound: true,
-			limitToOwner: false,
+			limitToOwner: true,
+			ownerProperty: 'user',
 			returnPlainObject: false,
 			nativeMongooseOptions: { new: true }
 		}
@@ -94,13 +96,14 @@ export const genericRepositoryFactory = <D extends Document, O = any>(
 		id: string,
 		{
 			failIfNotFound = true,
-			limitToOwner = false,
+			limitToOwner = true,
 			returnPlainObject = false,
-			ownerProperty,
+			ownerProperty = 'user',
 			ownerId
 		}: DeleteByIdOptions = {
 			failIfNotFound: true,
-			limitToOwner: false,
+			limitToOwner: true,
+			ownerProperty: 'user',
 			returnPlainObject: false
 		}
 	) => {

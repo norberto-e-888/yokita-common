@@ -9,12 +9,15 @@ export default (
 ) => (req: Request, _: Response, next: NextFunction) => {
 	const result = schema.validate(req[propertyToValidate], { abortEarly: false })
 	if (result.error) {
-		const errors: IValidationErrors = {}
-		result.error.details.forEach((detail) => {
-			if (detail.context?.key) {
-				errors[detail.context.key] = detail.message
-			}
-		})
+		const errors: IValidationErrors = result.error.details
+			.filter((detail) => !!detail.context?.key)
+			.reduce(
+				(errors, detail) =>
+					Object.assign(errors, {
+						[detail.context!.key as string]: detail.message
+					}),
+				{}
+			)
 
 		return next(
 			new AppError(
