@@ -6,8 +6,8 @@ export default class {
 		sort: {},
 		paginate: {
 			limit: 10,
-			skip: 0,
-		},
+			skip: 0
+		}
 	}
 
 	private rawQuery: RawQuery = {}
@@ -20,11 +20,11 @@ export default class {
 		{
 			convert = [],
 			lookup = [],
-			performLookupsPreMatch = false,
+			performLookupsPreMatch = false
 		}: PipelineOptions = {
 			convert: [],
 			lookup: [],
-			performLookupsPreMatch: false,
+			performLookupsPreMatch: false
 		}
 	) {
 		this.rawQuery.match = query?.match || {}
@@ -54,8 +54,8 @@ export default class {
 						from,
 						localField,
 						foreignField,
-						as,
-					},
+						as
+					}
 				})
 			} else {
 				lookups.push(
@@ -64,14 +64,14 @@ export default class {
 							from,
 							localField,
 							foreignField,
-							as,
-						},
+							as
+						}
 					},
 					{
 						$unwind: {
 							path: `$${as}`,
-							preserveNullAndEmptyArrays: true,
-						},
+							preserveNullAndEmptyArrays: true
+						}
 					}
 				)
 			}
@@ -80,7 +80,7 @@ export default class {
 		return [
 			...(this.performLookupsPreMatch ? lookups : []),
 			{
-				$match: this.mongoParseableQuery.match,
+				$match: this.mongoParseableQuery.match
 			},
 			{
 				$facet: {
@@ -89,13 +89,13 @@ export default class {
 						{ $sort: this.mongoParseableQuery.sort },
 						{ $skip: this.mongoParseableQuery.paginate.skip },
 						{ $limit: this.mongoParseableQuery.paginate.limit },
-						...(!this.performLookupsPreMatch ? lookups : []),
-					],
-				},
+						...(!this.performLookupsPreMatch ? lookups : [])
+					]
+				}
 			},
 			{
-				$unwind: '$count',
-			},
+				$unwind: '$count'
+			}
 		]
 	}
 
@@ -142,7 +142,7 @@ export default class {
 			const rawQueryCopy = Object.assign(this.rawQuery) as RawQuery
 			const timestampQuery: MongoParseableTime = {
 				gte: rawQueryCopy.time?.from,
-				lte: rawQueryCopy.time?.to,
+				lte: rawQueryCopy.time?.to
 			}
 
 			Object.entries(timestampQuery).forEach(([key, value]) => {
@@ -179,12 +179,12 @@ export default class {
 	private buildPaginate(): this {
 		const { pageSize, page } = this.rawQuery.paginate || {
 			pageSize: '10',
-			page: '1',
+			page: '1'
 		}
 
 		const mongoparseablePagination: MongoParseablePaginate = {
 			limit: parseInt(pageSize),
-			skip: parseInt(pageSize) * (parseInt(page) - 1),
+			skip: parseInt(pageSize) * (parseInt(page) - 1)
 		}
 
 		this.mongoParseableQuery.paginate = mongoparseablePagination
@@ -196,8 +196,8 @@ export default class {
 			this.mongoParseableQuery.match = {
 				...this.mongoParseableQuery.match,
 				$text: {
-					$search: this.rawQuery.textSearch,
-				},
+					$search: this.rawQuery.textSearch
+				}
 			}
 		}
 
@@ -212,7 +212,7 @@ export default class {
 					if (/\b(eq|gt|gte|lt|lte|ne|not|nin)\b/g.test(operator)) {
 						transformedMatch[key] = {
 							...transformedMatch[key],
-							[`$${operator}`]: value[operator],
+							[`$${operator}`]: value[operator]
 						}
 
 						delete transformedMatch[key][operator]
