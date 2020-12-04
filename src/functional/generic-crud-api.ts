@@ -77,4 +77,5 @@ export interface GenericCrudApiOptions {
 	deleteByIdOptions?: DeleteByIdOptions & MiddlewareOption
 }
 
+export type GenericCrudApi = ReturnType<typeof genericCrudApiFactory>
 type MiddlewareOption = { middleware?: Handler[] }
