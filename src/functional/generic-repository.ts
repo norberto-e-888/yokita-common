@@ -1,4 +1,5 @@
 import {
+	ClientSession,
 	CreateQuery,
 	Document,
 	Model,
@@ -81,7 +82,8 @@ export const genericRepositoryFactory = <D extends Document, O = any>(
 			limitToOwner && ownerProperty && ownerId
 				? await deps.model.findOneAndUpdate(
 						{ _id: id, [ownerProperty]: ownerId } as any,
-						update
+						update,
+						nativeMongooseOptions
 				  )
 				: await deps.model.findByIdAndUpdate(id, update, nativeMongooseOptions)
 
@@ -99,7 +101,8 @@ export const genericRepositoryFactory = <D extends Document, O = any>(
 			limitToOwner = true,
 			returnPlainObject = false,
 			ownerProperty = 'user',
-			ownerId
+			ownerId,
+			session
 		}: DeleteByIdOptions = {
 			failIfNotFound: true,
 			limitToOwner: true,
@@ -109,17 +112,20 @@ export const genericRepositoryFactory = <D extends Document, O = any>(
 	) => {
 		const doc =
 			limitToOwner && ownerProperty && ownerId
-				? await deps.model.findOneAndDelete({
-						_id: id,
-						[ownerProperty]: ownerId
-				  } as any)
-				: await deps.model.findByIdAndDelete(id)
+				? await deps.model.findOneAndDelete(
+						{
+							_id: id,
+							[ownerProperty]: ownerId
+						} as any,
+						{ session }
+				  )
+				: await deps.model.findByIdAndDelete(id, { session })
 
 		if (failIfNotFound && !doc) {
 			throw new AppError(`No ${opts.documentNameSingular} was found.`, 404)
 		}
 
-		return returnPlainObject && doc ? (doc.toObject() as O) : doc
+		return returnPlainObject && doc ? ((doc as D).toObject() as O) : doc
 	}
 
 	return { create, fetch, findById, updateById, deleteById }
@@ -144,7 +150,10 @@ export type UpdateByIdOptions = CommonActionByIdOptions & {
 	nativeMongooseOptions: QueryFindOneAndUpdateOptions
 }
 
-export type DeleteByIdOptions = CommonActionByIdOptions
+export type DeleteByIdOptions = CommonActionByIdOptions & {
+	session?: ClientSession
+}
+
 interface CommonActionByIdOptions {
 	failIfNotFound?: boolean
 	limitToOwner?: boolean
