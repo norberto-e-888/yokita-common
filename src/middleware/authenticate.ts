@@ -1,4 +1,4 @@
-import { NextFunction, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import jsonwebtoken from 'jsonwebtoken'
 import { AppError } from '../util'
 import { AuthenticatedRequest } from './types'
@@ -46,7 +46,7 @@ export default <User extends { role?: string }>({
 		}
 
 		if (req.user && extraCondition) {
-			if (!extraCondition(req.user)) {
+			if (!extraCondition(req.user, req)) {
 				return next(new AppError('Unauthorized', 403))
 			}
 		}
@@ -65,5 +65,5 @@ export interface IAuthenticateOptions<T> {
 	ignoreExpirationURLs?: string[]
 	isProtected?: boolean
 	limitToRoles?: string[]
-	extraCondition?: (user: T) => boolean
+	extraCondition?: (user: T, req: Request) => boolean
 }
