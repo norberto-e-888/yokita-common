@@ -11,7 +11,8 @@ export default <User extends { role?: string }>({
 	ignoreExpirationURLs = [],
 	isProtected = true,
 	limitToRoles,
-}: IAuthenticateOptions) => (
+	extraCondition
+}: IAuthenticateOptions<User>) => (
 	req: AuthenticatedRequest<User>,
 	_: Response,
 	next: NextFunction
@@ -26,7 +27,7 @@ export default <User extends { role?: string }>({
 		const decoded: any = jwt
 			? jsonwebtoken.verify(jwt, jwtSecret, {
 					ignoreExpiration:
-						!isProtected || ignoreExpirationURLs.includes(originalUrl),
+						!isProtected || ignoreExpirationURLs.includes(originalUrl)
 			  })
 			: null
 
@@ -44,13 +45,19 @@ export default <User extends { role?: string }>({
 			return next(new AppError('Unauthorized', 403))
 		}
 
+		if (req.user && extraCondition) {
+			if (!extraCondition(req.user)) {
+				return next(new AppError('Unauthorized', 403))
+			}
+		}
+
 		next()
 	} catch (error) {
 		return next(new AppError('Unauthenticated', 401))
 	}
 }
 
-export interface IAuthenticateOptions {
+export interface IAuthenticateOptions<T> {
 	jwtSecret: string
 	jwtIn?: 'body' | 'cookies' | 'query'
 	jwtKeyName?: string
@@ -58,4 +65,5 @@ export interface IAuthenticateOptions {
 	ignoreExpirationURLs?: string[]
 	isProtected?: boolean
 	limitToRoles?: string[]
+	extraCondition?: (user: T) => boolean
 }
