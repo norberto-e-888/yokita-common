@@ -47,7 +47,7 @@ export default <User extends { role?: string }>({
 
 		if (req.user && extraCondition) {
 			if (!extraCondition(req.user, req)) {
-				return next(new AppError('Unauthorized', 403))
+				return next(new AppError('Forbidden', 403))
 			}
 		}
 
