@@ -24,20 +24,26 @@ export default <User extends { role?: string }>({
 		}
 
 		const { originalUrl } = req
-		const decoded: any = jwt
-			? jsonwebtoken.verify(jwt, jwtSecret, {
+		const decoded: {
+			[key: string]: User | string | number
+			user: User
+			ip: string
+			exp: number
+			iat: number
+		} | null = jwt
+			? (jsonwebtoken.verify(jwt, jwtSecret, {
 					ignoreExpiration:
 						!isProtected || ignoreExpirationURLs.includes(originalUrl)
-			  })
+			  }) as any)
 			: null
 
-		if (decoded.ip !== req.ip) {
+		if (decoded && decoded.ip !== req.ip) {
 			return next(new AppError('Your IP address seems to have changed.', 401))
 		}
 
 		req.user =
 			decoded && decodedJWTUserPropertyKey
-				? decoded[decodedJWTUserPropertyKey]
+				? (decoded[decodedJWTUserPropertyKey] as any)
 				: decoded
 
 		if (
@@ -57,7 +63,6 @@ export default <User extends { role?: string }>({
 
 		next()
 	} catch (error) {
-		console.error(error)
 		return next(new AppError('Unauthenticated', 401))
 	}
 }
