@@ -31,6 +31,10 @@ export default <User extends { role?: string }>({
 			  })
 			: null
 
+		if (decoded.ip !== req.ip) {
+			return next(new AppError('Your IP address seems to have changed.', 401))
+		}
+
 		req.user =
 			decoded && decodedJWTUserPropertyKey
 				? decoded[decodedJWTUserPropertyKey]
