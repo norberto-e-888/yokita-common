@@ -57,6 +57,7 @@ export default <User extends { role?: string }>({
 
 		next()
 	} catch (error) {
+		console.error(error)
 		return next(new AppError('Unauthenticated', 401))
 	}
 }
