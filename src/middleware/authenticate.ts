@@ -77,10 +77,10 @@ export default async ({
 	}
 }
 
-export type PopulateUserArgs<T = any> = {
+export type PopulateUserArgs = {
 	userModel: Model<any>
 	getCachedUser(userId: string, cb: Callback<string>): boolean
-	extraCondition?(user: T, req: Request): boolean
+	extraCondition?(user: any, req: Request): boolean
 	jwtIn: 'body' | 'cookies' | 'query'
 	jwtKeyName: string
 	jwtSecret: string
