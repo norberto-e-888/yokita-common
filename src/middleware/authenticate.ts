@@ -13,7 +13,7 @@ export default ({
 	ignoreExpirationURLs = [],
 	extraCondition,
 	isProtected
-}: PopulateUserArgs) => (roles?: string[]) => (
+}: PopulateUserArgs) => (...roles: string[]) => (
 	req: Request,
 	_: Response,
 	next: NextFunction
@@ -41,7 +41,7 @@ export default ({
 			if (err) return next(err)
 			const cachedUser = JSON.parse(data) as { role: string }
 			if (!!cachedUser) {
-				if (roles && !roles.includes(cachedUser.role)) {
+				if (roles.length && !roles.includes(cachedUser.role)) {
 					return next(new AppError('Forbidden', 403))
 				}
 
@@ -58,7 +58,7 @@ export default ({
 			)) as Document & { role: string }
 
 			if (!!freshUserFromDB) {
-				if (roles && !roles.includes(freshUserFromDB.role)) {
+				if (roles.length && !roles.includes(freshUserFromDB.role)) {
 					return next(new AppError('Forbidden', 403))
 				}
 
