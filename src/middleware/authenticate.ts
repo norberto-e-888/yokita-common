@@ -18,13 +18,15 @@ export default ({
 ) => (req: Request, _: Response, next: NextFunction) => {
 	try {
 		const token = req[jwtIn][jwtKeyName]
-		if (!token && isProtected) {
-			return next(new AppError('Unauthenticated', 401))
-		}
-
 		if (!token) {
-			req.user = null
-			return next()
+			if (unauthenticatedOnly) {
+				req.user = null
+				return next()
+			}
+
+			if (isProtected) {
+				return next(new AppError('Unauthenticated', 401))
+			}
 		}
 
 		const decoded = jwt.verify(token, jwtSecret, {
@@ -36,15 +38,15 @@ export default ({
 			exp: number
 		}
 
-		if (decoded.id && unauthenticatedOnly) {
-			return next(new AppError('Forbidden', 403))
-		}
-
 		if (decoded.id) {
+			if (unauthenticatedOnly) {
+				return next(new AppError('Forbidden', 403))
+			}
+
 			getCachedUser(decoded.id, async (err, data) => {
 				if (err) return next(err)
 				const cachedUser = JSON.parse(data) as { role: string }
-				if (!!cachedUser) {
+				if (cachedUser) {
 					if (roles.length && !roles.includes(cachedUser.role)) {
 						return next(new AppError('Forbidden', 403))
 					}
@@ -59,9 +61,9 @@ export default ({
 
 				const freshUserFromDB = (await userModel.findById(
 					decoded.id as string
-				)) as Document & { role: string }
+				)) as (Document & { role: string }) | null
 
-				if (!!freshUserFromDB) {
+				if (freshUserFromDB) {
 					if (roles.length && !roles.includes(freshUserFromDB.role)) {
 						return next(new AppError('Forbidden', 403))
 					}
@@ -72,17 +74,23 @@ export default ({
 
 					req.user = freshUserFromDB.toObject()
 					return next()
-				} else if (!freshUserFromDB && isProtected) {
-					return next(new AppError('Unauthenticated', 401))
-				} else {
-					req.user = null
-					return next()
 				}
+
+				if (isProtected) {
+					return next(new AppError('Unauthenticated', 401))
+				}
+
+				req.user = null
+				return next()
 			})
-		} else {
-			req.user = null
-			return next()
 		}
+
+		if (isProtected) {
+			return next(new AppError('Unauthenticated', 401))
+		}
+
+		req.user = null
+		return next()
 	} catch (error) {
 		return next(error)
 	}
