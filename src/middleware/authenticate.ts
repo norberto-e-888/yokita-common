@@ -13,7 +13,7 @@ export default ({
 	ignoreExpirationURLs = [],
 	isProtected = true,
 	unauthenticatedOnly = false
-}: PopulateUserArgs) => (...roles: string[]) => (
+}: AuthenticateArgs) => (...roles: string[]) => (
 	extraCondition?: (user: any, req: Request) => boolean
 ) => (req: Request, _: Response, next: NextFunction) => {
 	try {
@@ -100,7 +100,7 @@ export default ({
 	}
 }
 
-export type PopulateUserArgs = {
+export type AuthenticateArgs = {
 	userModel?: Model<any>
 	getCachedUser?(userId: string, cb: Callback<string>): boolean
 	jwtIn: 'body' | 'cookies' | 'query'
