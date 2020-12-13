@@ -14,7 +14,7 @@ export default ({
 	isProtected = true,
 	unauthenticatedOnly = false
 }: AuthenticateArgs) => (...roles: string[]) => (
-	extraCondition?: (user: any, req: Request) => boolean
+	...extraConditions: ExtraCondition[]
 ) => (req: Request, _: Response, next: NextFunction) => {
 	try {
 		const token = req[jwtIn][jwtKeyName]
@@ -53,7 +53,9 @@ export default ({
 						return next(new AppError('Forbidden', 403))
 					}
 
-					if (extraCondition && !extraCondition(cachedUser, req)) {
+					if (
+						!extraConditions.every((condition) => condition(cachedUser, req))
+					) {
 						return next(new AppError('Forbidden', 403))
 					}
 
@@ -70,7 +72,11 @@ export default ({
 						return next(new AppError('Forbidden', 403))
 					}
 
-					if (extraCondition && !extraCondition(freshUserFromDB, req)) {
+					if (
+						!extraConditions.every((condition) =>
+							condition(freshUserFromDB, req)
+						)
+					) {
 						return next(new AppError('Forbidden', 403))
 					}
 
@@ -108,3 +114,5 @@ export type AuthenticateArgs = {
 	isProtected?: boolean
 	unauthenticatedOnly?: boolean
 }
+
+export type ExtraCondition = (user: any, req: Request) => boolean
