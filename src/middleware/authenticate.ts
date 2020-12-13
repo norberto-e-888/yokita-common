@@ -42,7 +42,7 @@ export default ({
 			}
 
 			if (!getCachedUser || !userModel) {
-				throw new AppError('Invalid middleware', 500)
+				return next(new AppError('Invalid middleware', 500))
 			}
 
 			getCachedUser(decoded.id, async (err, data) => {
@@ -91,14 +91,14 @@ export default ({
 				req.user = null
 				return next()
 			})
-		}
+		} else {
+			if (isProtected) {
+				return next(new AppError('Unauthenticated', 401))
+			}
 
-		if (isProtected) {
-			return next(new AppError('Unauthenticated', 401))
+			req.user = null
+			return next()
 		}
-
-		req.user = null
-		return next()
 	} catch (error) {
 		return next(new AppError('Unauthenticated', 401))
 	}
