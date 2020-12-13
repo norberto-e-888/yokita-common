@@ -11,7 +11,7 @@ export default ({
 	jwtIn,
 	jwtKeyName,
 	ignoreExpirationURLs = [],
-	isProtected
+	isProtected = true
 }: PopulateUserArgs) => (...roles: string[]) => (
 	extraCondition?: (user: any, req: Request) => boolean
 ) => (req: Request, _: Response, next: NextFunction) => {
