@@ -23,10 +23,6 @@ export default ({
 		}
 
 		if (!token) {
-			if (extraCondition && !extraCondition({}, req)) {
-				return next(new AppError('Forbidden', 403))
-			}
-
 			req.user = null
 			return next()
 		}
