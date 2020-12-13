@@ -14,11 +14,7 @@ export default ({
 	limitToRoles = [],
 	extraCondition,
 	isProtected
-}: PopulateUserArgs) => async (
-	req: Request,
-	_: Response,
-	next: NextFunction
-) => {
+}: PopulateUserArgs) => (req: Request, _: Response, next: NextFunction) => {
 	try {
 		const token = req[jwtIn][jwtKeyName]
 		if (!token && isProtected) {
