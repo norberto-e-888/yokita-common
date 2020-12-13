@@ -43,6 +43,10 @@ export default ({
 				return next(new AppError('Forbidden', 403))
 			}
 
+			if (!getCachedUser || !userModel) {
+				throw new AppError('Invalid middleware', 500)
+			}
+
 			getCachedUser(decoded.id, async (err, data) => {
 				if (err) return next(err)
 				const cachedUser = JSON.parse(data) as { role: string }
@@ -97,8 +101,8 @@ export default ({
 }
 
 export type PopulateUserArgs = {
-	userModel: Model<any>
-	getCachedUser(userId: string, cb: Callback<string>): boolean
+	userModel?: Model<any>
+	getCachedUser?(userId: string, cb: Callback<string>): boolean
 	jwtIn: 'body' | 'cookies' | 'query'
 	jwtKeyName: string
 	jwtSecret: string
