@@ -11,7 +11,8 @@ export default ({
 	jwtIn,
 	jwtKeyName,
 	ignoreExpirationURLs = [],
-	isProtected = true
+	isProtected = true,
+	unauthenticatedOnly = false
 }: PopulateUserArgs) => (...roles: string[]) => (
 	extraCondition?: (user: any, req: Request) => boolean
 ) => (req: Request, _: Response, next: NextFunction) => {
@@ -33,6 +34,10 @@ export default ({
 			id: string
 			iat: number
 			exp: number
+		}
+
+		if (decoded.id && unauthenticatedOnly) {
+			return next(new AppError('Forbidden', 403))
 		}
 
 		if (decoded.id) {
@@ -91,4 +96,5 @@ export type PopulateUserArgs = {
 	jwtSecret: string
 	ignoreExpirationURLs?: string[]
 	isProtected?: boolean
+	unauthenticatedOnly?: boolean
 }
