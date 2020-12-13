@@ -100,7 +100,7 @@ export default ({
 		req.user = null
 		return next()
 	} catch (error) {
-		return next(error)
+		return next(new AppError('Unauthenticated', 401))
 	}
 }
 
