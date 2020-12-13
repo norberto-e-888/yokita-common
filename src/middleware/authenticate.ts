@@ -80,7 +80,6 @@ export default ({
 export type PopulateUserArgs = {
 	userModel: Model<any>
 	getCachedUser(userId: string, cb: Callback<string>): boolean
-	extraCondition?(user: any, req: Request): boolean
 	jwtIn: 'body' | 'cookies' | 'query'
 	jwtKeyName: string
 	jwtSecret: string
