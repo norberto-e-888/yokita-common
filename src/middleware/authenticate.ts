@@ -13,7 +13,7 @@ export default ({
 	ignoreExpirationURLs = [],
 	extraCondition,
 	isProtected
-}: PopulateUserArgs) => (roles: string[]) => (
+}: PopulateUserArgs) => (roles: string[] = []) => (
 	req: Request,
 	_: Response,
 	next: NextFunction
