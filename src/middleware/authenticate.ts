@@ -19,14 +19,12 @@ export default ({
 	try {
 		const token = req[jwtIn][jwtKeyName]
 		if (!token) {
-			if (unauthenticatedOnly) {
-				req.user = null
-				return next()
-			}
-
 			if (isProtected) {
 				return next(new AppError('Unauthenticated', 401))
 			}
+
+			req.user = null
+			return next()
 		}
 
 		const decoded = jwt.verify(token, jwtSecret, {
