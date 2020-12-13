@@ -1,79 +1,90 @@
 import { NextFunction, Request, Response } from 'express'
-import jsonwebtoken from 'jsonwebtoken'
+import { Document, Model } from 'mongoose'
+import jwt from 'jsonwebtoken'
+import { Callback } from 'redis'
 import { AppError } from '../util'
-import { AuthenticatedRequest } from './types'
 
-export default <User extends { role?: string }>({
+export default async ({
+	userModel,
+	getCachedUser,
 	jwtSecret,
-	jwtIn = 'cookies',
-	jwtKeyName = 'jwt',
-	decodedJWTUserPropertyKey = 'user',
+	jwtIn,
+	jwtKeyName,
 	ignoreExpirationURLs = [],
-	isProtected = true,
-	limitToRoles,
-	extraCondition
-}: IAuthenticateOptions<User>) => (
-	req: AuthenticatedRequest<User>,
-	_: Response,
-	next: NextFunction
-) => {
+	limitToRoles = [],
+	extraCondition,
+	isProtected
+}: PopulateUserArgs) => (req: Request, _: Response, next: NextFunction) => {
 	try {
-		const jwt = req[jwtIn][jwtKeyName] as string
-		if (!jwt && isProtected) {
-			return next(new AppError('Unauthenticated.', 401))
+		const token = req[jwtIn][jwtKeyName]
+		if (!token && isProtected) {
+			return next(new AppError('Unauthenticated', 401))
 		}
 
-		const { originalUrl } = req
-		const decoded: {
-			[key: string]: User | string | number
-			user: User
-			ip: string
-			exp: number
+		if (!token) {
+			req.user = null
+			return next()
+		}
+
+		const decoded = jwt.verify(token, jwtSecret, {
+			ignoreExpiration: ignoreExpirationURLs.includes(req.originalUrl)
+		}) as {
+			id: string
 			iat: number
-		} | null = jwt
-			? (jsonwebtoken.verify(jwt, jwtSecret, {
-					ignoreExpiration:
-						!isProtected || ignoreExpirationURLs.includes(originalUrl)
-			  }) as any)
-			: null
-
-		if (decoded && decoded.ip !== req.ip) {
-			return next(new AppError('Your IP address seems to have changed.', 401))
+			exp: number
 		}
 
-		req.user =
-			decoded && decodedJWTUserPropertyKey
-				? (decoded[decodedJWTUserPropertyKey] as any)
-				: decoded
+		getCachedUser(decoded.id, async (err, data) => {
+			if (err) return next(err)
+			const cachedUser = JSON.parse(data) as { role: string }
+			if (!!cachedUser) {
+				if (!limitToRoles.includes(cachedUser.role)) {
+					return next(new AppError('Forbidden', 403))
+				}
 
-		if (
-			req.user &&
-			limitToRoles &&
-			req.user.role &&
-			!limitToRoles.includes(req.user.role)
-		) {
-			return next(new AppError('Unauthorized', 403))
-		}
+				if (extraCondition && !extraCondition(cachedUser, req)) {
+					return next(new AppError('Forbidden', 403))
+				}
 
-		if (req.user && extraCondition) {
-			if (!extraCondition(req.user, req)) {
-				return next(new AppError('Forbidden', 403))
+				req.user = cachedUser
+				return next()
 			}
-		}
 
-		next()
+			const freshUserFromDB = (await userModel.findById(
+				decoded.id as string
+			)) as Document & { role: string }
+
+			if (!!freshUserFromDB) {
+				if (!limitToRoles.includes(freshUserFromDB.role)) {
+					return next(new AppError('Forbidden', 403))
+				}
+
+				if (extraCondition && !extraCondition(freshUserFromDB, req)) {
+					return next(new AppError('Forbidden', 403))
+				}
+
+				req.user = freshUserFromDB.toObject()
+				return next()
+			} else if (!freshUserFromDB && isProtected) {
+				return next(new AppError('Unauthenticated', 401))
+			} else {
+				req.user = null
+				return next()
+			}
+		})
 	} catch (error) {
-		return next(new AppError('Unauthenticated', 401))
+		return next(error)
 	}
 }
 
-export interface IAuthenticateOptions<T> {
+export type PopulateUserArgs = {
+	userModel: Model<any>
+	getCachedUser: (userId: string, cb: Callback<string>) => boolean
+	extraCondition?: <T = any>(user: T, req: Request) => boolean
+	jwtIn: 'body' | 'cookies' | 'query'
+	jwtKeyName: string
 	jwtSecret: string
-	jwtIn?: 'body' | 'cookies' | 'query'
-	jwtKeyName?: string
-	decodedJWTUserPropertyKey?: string
 	ignoreExpirationURLs?: string[]
-	isProtected?: boolean
 	limitToRoles?: string[]
-	extraCondition?: (user: T, req: Request) => boolean
+	isProtected?: boolean
 }
