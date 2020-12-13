@@ -11,13 +11,10 @@ export default ({
 	jwtIn,
 	jwtKeyName,
 	ignoreExpirationURLs = [],
-	extraCondition,
 	isProtected
 }: PopulateUserArgs) => (...roles: string[]) => (
-	req: Request,
-	_: Response,
-	next: NextFunction
-) => {
+	extraCondition?: (user: any, req: Request) => boolean
+) => (req: Request, _: Response, next: NextFunction) => {
 	try {
 		const token = req[jwtIn][jwtKeyName]
 		if (!token && isProtected) {
