@@ -27,51 +27,57 @@ export default ({
 		}
 
 		const decoded = jwt.verify(token, jwtSecret, {
-			ignoreExpiration: ignoreExpirationURLs.includes(req.originalUrl)
+			ignoreExpiration:
+				ignoreExpirationURLs.includes(req.originalUrl) || !isProtected
 		}) as {
 			id: string
 			iat: number
 			exp: number
 		}
 
-		getCachedUser(decoded.id, async (err, data) => {
-			if (err) return next(err)
-			const cachedUser = JSON.parse(data) as { role: string }
-			if (!!cachedUser) {
-				if (roles.length && !roles.includes(cachedUser.role)) {
-					return next(new AppError('Forbidden', 403))
+		if (decoded.id) {
+			getCachedUser(decoded.id, async (err, data) => {
+				if (err) return next(err)
+				const cachedUser = JSON.parse(data) as { role: string }
+				if (!!cachedUser) {
+					if (roles.length && !roles.includes(cachedUser.role)) {
+						return next(new AppError('Forbidden', 403))
+					}
+
+					if (extraCondition && !extraCondition(cachedUser, req)) {
+						return next(new AppError('Forbidden', 403))
+					}
+
+					req.user = cachedUser
+					return next()
 				}
 
-				if (extraCondition && !extraCondition(cachedUser, req)) {
-					return next(new AppError('Forbidden', 403))
+				const freshUserFromDB = (await userModel.findById(
+					decoded.id as string
+				)) as Document & { role: string }
+
+				if (!!freshUserFromDB) {
+					if (roles.length && !roles.includes(freshUserFromDB.role)) {
+						return next(new AppError('Forbidden', 403))
+					}
+
+					if (extraCondition && !extraCondition(freshUserFromDB, req)) {
+						return next(new AppError('Forbidden', 403))
+					}
+
+					req.user = freshUserFromDB.toObject()
+					return next()
+				} else if (!freshUserFromDB && isProtected) {
+					return next(new AppError('Unauthenticated', 401))
+				} else {
+					req.user = null
+					return next()
 				}
-
-				req.user = cachedUser
-				return next()
-			}
-
-			const freshUserFromDB = (await userModel.findById(
-				decoded.id as string
-			)) as Document & { role: string }
-
-			if (!!freshUserFromDB) {
-				if (roles.length && !roles.includes(freshUserFromDB.role)) {
-					return next(new AppError('Forbidden', 403))
-				}
-
-				if (extraCondition && !extraCondition(freshUserFromDB, req)) {
-					return next(new AppError('Forbidden', 403))
-				}
-
-				req.user = freshUserFromDB.toObject()
-				return next()
-			} else if (!freshUserFromDB && isProtected) {
-				return next(new AppError('Unauthenticated', 401))
-			} else {
-				req.user = null
-				return next()
-			}
-		})
+			})
+		} else {
+			req.user = null
+			return next()
+		}
 	} catch (error) {
 		return next(error)
 	}
