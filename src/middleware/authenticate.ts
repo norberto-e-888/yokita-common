@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import { Callback } from 'redis'
 import { AppError } from '../util'
 
-export default async ({
+export default ({
 	userModel,
 	getCachedUser,
 	jwtSecret,
@@ -14,7 +14,11 @@ export default async ({
 	limitToRoles = [],
 	extraCondition,
 	isProtected
-}: PopulateUserArgs) => (req: Request, _: Response, next: NextFunction) => {
+}: PopulateUserArgs) => async (
+	req: Request,
+	_: Response,
+	next: NextFunction
+) => {
 	try {
 		const token = req[jwtIn][jwtKeyName]
 		if (!token && isProtected) {
