@@ -11,10 +11,13 @@ export default ({
 	jwtIn,
 	jwtKeyName,
 	ignoreExpirationURLs = [],
-	limitToRoles = [],
 	extraCondition,
 	isProtected
-}: PopulateUserArgs) => (req: Request, _: Response, next: NextFunction) => {
+}: PopulateUserArgs) => (roles: string[]) => (
+	req: Request,
+	_: Response,
+	next: NextFunction
+) => {
 	try {
 		const token = req[jwtIn][jwtKeyName]
 		if (!token && isProtected) {
@@ -38,7 +41,7 @@ export default ({
 			if (err) return next(err)
 			const cachedUser = JSON.parse(data) as { role: string }
 			if (!!cachedUser) {
-				if (!limitToRoles.includes(cachedUser.role)) {
+				if (roles.length && !roles.includes(cachedUser.role)) {
 					return next(new AppError('Forbidden', 403))
 				}
 
@@ -55,7 +58,7 @@ export default ({
 			)) as Document & { role: string }
 
 			if (!!freshUserFromDB) {
-				if (!limitToRoles.includes(freshUserFromDB.role)) {
+				if (roles.length && !roles.includes(freshUserFromDB.role)) {
 					return next(new AppError('Forbidden', 403))
 				}
 
@@ -85,6 +88,5 @@ export type PopulateUserArgs = {
 	jwtKeyName: string
 	jwtSecret: string
 	ignoreExpirationURLs?: string[]
-	limitToRoles?: string[]
 	isProtected?: boolean
 }
