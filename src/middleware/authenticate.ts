@@ -38,7 +38,6 @@ export default ({
 
 		if (decoded.id) {
 			if (unauthenticatedOnly) {
-				console.log('HERE 1', decoded)
 				return next(new AppError('Forbidden', 403))
 			}
 
@@ -51,14 +50,12 @@ export default ({
 				const cachedUser = JSON.parse(data) as { role: string }
 				if (cachedUser) {
 					if (roles.length && !roles.includes(cachedUser.role)) {
-						console.log('HERE 2', cachedUser)
 						return next(new AppError('Forbidden', 403))
 					}
 
 					if (
 						!extraConditions.every((condition) => condition(cachedUser, req))
 					) {
-						console.log('HERE 3', cachedUser)
 						return next(new AppError('Forbidden', 403))
 					}
 
@@ -72,7 +69,6 @@ export default ({
 
 				if (freshUserFromDB) {
 					if (roles.length && !roles.includes(freshUserFromDB.role)) {
-						console.log('HERE 4', freshUserFromDB)
 						return next(new AppError('Forbidden', 403))
 					}
 
@@ -81,7 +77,6 @@ export default ({
 							condition(freshUserFromDB, req)
 						)
 					) {
-						console.log('HERE 5', freshUserFromDB)
 						return next(new AppError('Forbidden', 403))
 					}
 
