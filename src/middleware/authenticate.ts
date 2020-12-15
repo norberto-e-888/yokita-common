@@ -53,10 +53,10 @@ export default ({
 						return next(new AppError('Forbidden', 403))
 					}
 
-					if (
-						!extraConditions.every((condition) => condition(cachedUser, req))
-					) {
-						return next(new AppError('Forbidden', 403))
+					for (const { condition, message = 'Forbidden' } of extraConditions) {
+						if (!condition(cachedUser, req)) {
+							return next(new AppError(message, 403))
+						}
 					}
 
 					req.user = cachedUser
@@ -72,12 +72,10 @@ export default ({
 						return next(new AppError('Forbidden', 403))
 					}
 
-					if (
-						!extraConditions.every((condition) =>
-							condition(freshUserFromDB, req)
-						)
-					) {
-						return next(new AppError('Forbidden', 403))
+					for (const { condition, message = 'Forbidden' } of extraConditions) {
+						if (!condition(cachedUser, req)) {
+							return next(new AppError(message, 403))
+						}
 					}
 
 					req.user = freshUserFromDB.toObject()
@@ -115,4 +113,7 @@ export type AuthenticateArgs = {
 	unauthenticatedOnly?: boolean
 }
 
-export type ExtraCondition = (user: any, req: Request) => boolean
+export type ExtraCondition = {
+	condition: (user: any, req: Request) => boolean
+	message?: string
+}
