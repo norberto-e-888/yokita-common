@@ -53,16 +53,14 @@ export default ({
 						return next(new AppError('Forbidden', 403))
 					}
 
-					for (const { condition, message = 'Forbidden' } of extraConditions) {
-						if (!condition(cachedUser, req)) {
-							return next(
-								new AppError(
-									typeof message === 'string'
-										? message
-										: message(cachedUser, req),
-									403
-								)
-							)
+					for (const condition of extraConditions) {
+						const { doesContidionPass, message = 'Forbidden' } = condition(
+							cachedUser,
+							req
+						)
+
+						if (!doesContidionPass) {
+							return next(new AppError(message, 403))
 						}
 					}
 
@@ -79,16 +77,14 @@ export default ({
 						return next(new AppError('Forbidden', 403))
 					}
 
-					for (const { condition, message = 'Forbidden' } of extraConditions) {
-						if (!condition(freshUserFromDB, req)) {
-							return next(
-								new AppError(
-									typeof message === 'string'
-										? message
-										: message(freshUserFromDB, req),
-									403
-								)
-							)
+					for (const condition of extraConditions) {
+						const { doesContidionPass, message = 'Forbidden' } = condition(
+							freshUserFromDB,
+							req
+						)
+
+						if (!doesContidionPass) {
+							return next(new AppError(message, 403))
 						}
 					}
 
@@ -127,7 +123,10 @@ export type AuthenticateArgs = {
 	unauthenticatedOnly?: boolean
 }
 
-export type ExtraCondition<User = any> = {
-	condition: (user: User, req: Request) => boolean
-	message?: string | ((user: User, req: Request) => string)
+export type ExtraCondition<User = any> = (
+	user: User,
+	req: Request
+) => {
+	doesContidionPass: boolean
+	message?: string
 }
