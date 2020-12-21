@@ -1,6 +1,6 @@
 {
 	"name": "@yokita/common",
-	"version": "1.1.94",
+	"version": "1.1.95",
 	"description": "Module for project agnostic code",
 	"main": "./build/index.js",
 	"types": "./build/index.d.ts",
