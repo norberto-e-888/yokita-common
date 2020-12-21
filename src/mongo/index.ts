@@ -80,6 +80,17 @@ export type MongooseSchemaDefinition<T> = {
 		| SchemaTypeOpts<any>
 }
 
-export type MongooseSchemaIndex<T> = {
+export type MongooseSchemaIndexValue<T> = {
 	[K in keyof Partial<Omit<T, keyof CommonProperties>>]: string | number
+}
+
+export type MongooseSchemaIndexOptions = {
+	expires?: string
+	unique?: boolean
+	sparse?: boolean
+}
+
+export type MongooseSchemaIndex<T> = {
+	value: MongooseSchemaIndexValue<T>
+	options?: MongooseSchemaIndexOptions
 }
