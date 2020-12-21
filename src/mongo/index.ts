@@ -79,3 +79,7 @@ export type MongooseSchemaDefinition<T> = {
 		| SchemaDefinition
 		| SchemaTypeOpts<any>
 }
+
+export type MongooseSchemaIndex<T> = {
+	[K in keyof Partial<Omit<T, keyof CommonProperties>>]: string | number
+}
