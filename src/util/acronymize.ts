@@ -5,7 +5,6 @@ export default (
 	const ommitedWords = abbreviateLanguageToOmmitedWordsMap[lang]
 	return s
 		.split(' ')
-		.filter((w) => !!w)
 		.filter((w) => !ommitedWords.includes(w.toLocaleLowerCase()))
 		.map((w) => w.charAt(0).toLocaleUpperCase())
 		.join('')
