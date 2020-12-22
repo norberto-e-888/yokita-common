@@ -189,7 +189,7 @@ export default class {
 	}
 
 	private buildMatch(): this {
-		let mongoParseableMatch = Object.assign(this.rawQuery.match)
+		let mongoParseableMatch = Object.assign(this.rawQuery.match || {})
 		this.mongoParseableQuery.match = mongoParseableMatch
 		if (!this.convert.length) {
 			return this
@@ -200,11 +200,10 @@ export default class {
 			for (const key of keys) {
 				const path = key.split('.')
 				const valueToConvert = path.reduce<any>(
-					(acc, curr) => acc[curr],
-					mongoParseableMatch || {}
+					(acc, curr) => acc[curr] || {},
+					mongoParseableMatch
 				)
 
-				console.log(key, valueToConvert)
 				if (valueToConvert) {
 					let ClassToConverTo: any
 					switch (convertion.to) {
