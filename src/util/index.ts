@@ -1,8 +1,8 @@
 export {
 	default as FetchPipelineBuilder,
-	PipelineOptions,
+	PipelineOptions
 } from './fetch-pipeline-builder'
-export { default as abbreviate } from './abbreviate'
+export { default as acronymize } from './acronymize'
 export { default as AppError, IValidationErrors } from './app-error'
 export { default as capitalize } from './capitalize'
 export { default as extractCookies } from './extract-cookies'
