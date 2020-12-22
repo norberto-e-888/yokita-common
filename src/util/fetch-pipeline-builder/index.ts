@@ -200,10 +200,11 @@ export default class {
 			for (const key of keys) {
 				const path = key.split('.')
 				const valueToConvert = path.reduce<any>(
-					(acc, curr) => acc[curr] || {},
-					mongoParseableMatch
+					(acc, curr) => acc[curr],
+					mongoParseableMatch || {}
 				)
 
+				console.log(key, valueToConvert)
 				if (valueToConvert) {
 					let ClassToConverTo: any
 					switch (convertion.to) {
