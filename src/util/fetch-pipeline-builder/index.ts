@@ -200,7 +200,7 @@ export default class {
 			for (const key of keys) {
 				const path = key.split('.')
 				const valueToConvert = path.reduce<any>(
-					(acc, curr) => acc[curr],
+					(acc, curr) => acc[curr] || {},
 					mongoParseableMatch
 				)
 
