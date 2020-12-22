@@ -204,35 +204,37 @@ export default class {
 					mongoParseableMatch
 				)
 
-				let ClassToConverTo: any
-				switch (convertion.to) {
-					case 'number':
-						ClassToConverTo = Number
-						break
+				if (valueToConvert) {
+					let ClassToConverTo: any
+					switch (convertion.to) {
+						case 'number':
+							ClassToConverTo = Number
+							break
 
-					case 'string':
-						ClassToConverTo = String
-						break
+						case 'string':
+							ClassToConverTo = String
+							break
 
-					case 'objectId':
-						ClassToConverTo = Types.ObjectId
-						break
+						case 'objectId':
+							ClassToConverTo = Types.ObjectId
+							break
 
-					case 'boolean':
-						ClassToConverTo = Boolean
-						break
+						case 'boolean':
+							ClassToConverTo = Boolean
+							break
 
-					default:
-						throw '[QueryTransformation.converTo] "to" is invalid.'
-				}
+						default:
+							throw '[QueryTransformation.converTo] "to" is invalid.'
+					}
 
-				const convertedValue = ClassToConverTo(valueToConvert)
-				if (convertedValue) {
-					mongoParseableMatch = setNestedKey(
-						mongoParseableMatch,
-						path,
-						convertedValue
-					)
+					const convertedValue = ClassToConverTo(valueToConvert)
+					if (convertedValue) {
+						mongoParseableMatch = setNestedKey(
+							mongoParseableMatch,
+							path,
+							convertedValue
+						)
+					}
 				}
 			}
 		}
