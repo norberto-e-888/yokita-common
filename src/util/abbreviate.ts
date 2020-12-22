@@ -1,6 +1,24 @@
-export default (s: string) =>
-	s
+export default (
+	s: string,
+	lang: AbbreviateSupportedLanguage = AbbreviateSupportedLanguage.ES
+) => {
+	const ommitedWords = abbreviateLanguageToOmmitedWordsMap[lang]
+	return s
 		.split(' ')
-		.filter((c) => !!c)
-		.map((c) => c.charAt(0).toLocaleUpperCase())
+		.filter((w) => !!w)
+		.filter((w) => !ommitedWords.includes(w.toLocaleLowerCase()))
+		.map((w) => w.charAt(0).toLocaleUpperCase())
 		.join('')
+}
+
+export enum AbbreviateSupportedLanguage {
+	ES = 'es',
+	EN = 'en'
+}
+
+export const abbreviateLanguageToOmmitedWordsMap: {
+	[key in AbbreviateSupportedLanguage]: string[]
+} = {
+	[AbbreviateSupportedLanguage.ES]: ['de', 'y', 'la', 'el', 'lo', 'en'],
+	[AbbreviateSupportedLanguage.EN]: ['and', 'the', 'of']
+}
