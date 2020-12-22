@@ -227,11 +227,13 @@ export default class {
 				}
 
 				const convertedValue = ClassToConverTo(valueToConvert)
-				mongoParseableMatch = setNestedKey(
-					mongoParseableMatch,
-					path,
-					convertedValue
-				)
+				if (convertedValue) {
+					mongoParseableMatch = setNestedKey(
+						mongoParseableMatch,
+						path,
+						convertedValue
+					)
+				}
 			}
 		}
 
