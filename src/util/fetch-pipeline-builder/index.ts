@@ -209,7 +209,7 @@ export default class {
 		Object.entries(this.mongoParseableQuery.match).forEach(([key, value]) => {
 			if (typeof value === 'object' && key !== '$text') {
 				Object.keys(value).forEach((operator) => {
-					if (/\b(eq|gt|gte|lt|lte|ne|not|nin)\b/g.test(operator)) {
+					if (/\b(eq|gt|gte|lt|lte|ne|not|nin|or|in)\b/g.test(operator)) {
 						transformedMatch[key] = {
 							...transformedMatch[key],
 							[`$${operator}`]: value[operator]
