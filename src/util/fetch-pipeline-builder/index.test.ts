@@ -10,8 +10,8 @@ describe('FetchPipelineBuilder', () => {
 				'b.c': { gte: 100 },
 				c: 'test',
 				d: { ne: 'hello' },
-				f: { nin: [1, 2, 3] },
-			},
+				f: { nin: [1, 2, 3] }
+			}
 		})
 
 		const [{ $match }] = builder.pipeline
@@ -24,7 +24,7 @@ describe('FetchPipelineBuilder', () => {
 
 	it('Adds a $text: {$search} operation to $match when the textSearch option is passed', () => {
 		const builder = new FetchPipelineBuilder({
-			textSearch: 'someText',
+			textSearch: 'someText'
 		})
 
 		const [{ $match }] = builder.pipeline
@@ -35,7 +35,7 @@ describe('FetchPipelineBuilder', () => {
 		const from = new Date(Date.now() - 500000)
 		const to = new Date(Date.now() + 500000)
 		const builder = new FetchPipelineBuilder({
-			time: { from, to, field: 'dateField' },
+			time: { from, to, field: 'dateField' }
 		})
 
 		const [{ $match }] = builder.pipeline
@@ -45,16 +45,16 @@ describe('FetchPipelineBuilder', () => {
 
 	it('Builds a sort object parseable by Mongo and uses it as first stage of the "data" sub-pipeline of the $facet stage', () => {
 		const builder = new FetchPipelineBuilder({
-			sort: '-a,b,-c,d.e',
+			sort: '-a,b,-c,d.e'
 		})
 
 		const [
 			,
 			{
 				$facet: {
-					data: [{ $sort }],
-				},
-			},
+					data: [{ $sort }]
+				}
+			}
 		] = builder.pipeline
 
 		expect($sort['a']).toBe(-1)
@@ -67,17 +67,17 @@ describe('FetchPipelineBuilder', () => {
 		const builder = new FetchPipelineBuilder({
 			paginate: {
 				page: '3',
-				pageSize: '25',
-			},
+				pageSize: '25'
+			}
 		})
 
 		const [
 			,
 			{
 				$facet: {
-					data: [, { $skip }, { $limit }],
-				},
-			},
+					data: [, { $skip }, { $limit }]
+				}
+			}
 		] = builder.pipeline
 
 		expect($skip).toBe(50)
@@ -90,7 +90,7 @@ describe('FetchPipelineBuilder', () => {
 			foreignField: 'foreign',
 			as: 'localAlias',
 			from: 'collection',
-			justOne: true,
+			justOne: true
 		}
 
 		const lookupOption2: LookupOption = {
@@ -98,7 +98,7 @@ describe('FetchPipelineBuilder', () => {
 			foreignField: 'foreign2',
 			as: 'localAlias2',
 			from: 'collection2',
-			justOne: true,
+			justOne: true
 		}
 
 		const lookupOption3: LookupOption = {
@@ -106,14 +106,14 @@ describe('FetchPipelineBuilder', () => {
 			foreignField: 'foreign3',
 			as: 'localAlias3',
 			from: 'collection3',
-			justOne: true,
+			justOne: true
 		}
 
 		const builder = new FetchPipelineBuilder(
 			{},
 			{
 				lookup: [lookupOption1, lookupOption2, lookupOption3],
-				performLookupsPreMatch: true,
+				performLookupsPreMatch: true
 			}
 		)
 
@@ -123,22 +123,22 @@ describe('FetchPipelineBuilder', () => {
 			lookup2,
 			unwind2,
 			lookup3,
-			unwind3,
+			unwind3
 		] = builder.pipeline
 
 		expect((lookup1 as LookupStage).$lookup).toEqual({
 			...lookupOption1,
-			justOne: undefined,
+			justOne: undefined
 		})
 
 		expect((lookup2 as LookupStage).$lookup).toEqual({
 			...lookupOption2,
-			justOne: undefined,
+			justOne: undefined
 		})
 
 		expect((lookup3 as LookupStage).$lookup).toEqual({
 			...lookupOption3,
-			justOne: undefined,
+			justOne: undefined
 		})
 
 		expect((unwind1 as UnwindStage).$unwind.path).toBe('$' + lookupOption1.as)
@@ -152,7 +152,7 @@ describe('FetchPipelineBuilder', () => {
 			foreignField: 'foreign',
 			as: 'localAlias',
 			from: 'collection',
-			justOne: false,
+			justOne: false
 		}
 
 		const lookupOption2: LookupOption = {
@@ -160,7 +160,7 @@ describe('FetchPipelineBuilder', () => {
 			foreignField: 'foreign2',
 			as: 'localAlias2',
 			from: 'collection2',
-			justOne: false,
+			justOne: false
 		}
 
 		const lookupOption3: LookupOption = {
@@ -168,31 +168,31 @@ describe('FetchPipelineBuilder', () => {
 			foreignField: 'foreign3',
 			as: 'localAlias3',
 			from: 'collection3',
-			justOne: false,
+			justOne: false
 		}
 
 		const builder = new FetchPipelineBuilder(
 			{},
 			{
 				lookup: [lookupOption1, lookupOption2, lookupOption3],
-				performLookupsPreMatch: true,
+				performLookupsPreMatch: true
 			}
 		)
 
 		const [lookup1, lookup2, lookup3] = builder.pipeline
 		expect((lookup1 as LookupStage).$lookup).toEqual({
 			...lookupOption1,
-			justOne: undefined,
+			justOne: undefined
 		})
 
 		expect((lookup2 as LookupStage).$lookup).toEqual({
 			...lookupOption2,
-			justOne: undefined,
+			justOne: undefined
 		})
 
 		expect((lookup3 as LookupStage).$lookup).toEqual({
 			...lookupOption3,
-			justOne: undefined,
+			justOne: undefined
 		})
 	})
 
@@ -209,7 +209,14 @@ describe('FetchPipelineBuilder', () => {
 					g: '',
 					h: 'true',
 					i: 'all-non-empty-strings-will-be-converted-to-true',
-				},
+					hello: {
+						nested: '10',
+						preserved: 'preserved',
+						world: {
+							sonested: '25'
+						}
+					}
+				}
 			},
 			{
 				convert: [
@@ -217,7 +224,8 @@ describe('FetchPipelineBuilder', () => {
 					{ keys: 'b,e', to: 'number' },
 					{ keys: 'c,d', to: 'objectId' },
 					{ keys: 'g,h,i', to: 'boolean' },
-				],
+					{ keys: 'hello.nested,hello.world.sonested', to: 'number' }
+				]
 			}
 		)
 
@@ -231,6 +239,9 @@ describe('FetchPipelineBuilder', () => {
 		expect($match.g).toBe(false)
 		expect($match.h).toBe(true)
 		expect($match.i).toBe(true)
+		expect(typeof $match.hello.nested).toBe('number')
+		expect(typeof $match.hello.world.sonested).toBe('number')
+		expect($match.hello.preserved).toBe('preserved')
 	})
 
 	it('Adds a final $unwind stage to unwind $count', () => {

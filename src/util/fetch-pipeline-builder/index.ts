@@ -1,4 +1,5 @@
 import { Types } from 'mongoose'
+import setNestedKey from '../set-nested-key'
 
 export default class {
 	private mongoParseableQuery: MongoParseableQuery = {
@@ -99,44 +100,6 @@ export default class {
 		]
 	}
 
-	private buildMatch(): this {
-		const mongoParseableMatch = Object.assign(this.rawQuery.match)
-		if (this.convert.length) {
-			Object.entries(mongoParseableMatch).forEach(([key, value]) => {
-				const convertion = this.convert.find(({ keys }) => keys.includes(key))
-				if (convertion) {
-					let ClassToConverTo: any
-					switch (convertion.to) {
-						case 'number':
-							ClassToConverTo = Number
-							break
-
-						case 'string':
-							ClassToConverTo = String
-							break
-
-						case 'objectId':
-							ClassToConverTo = Types.ObjectId
-							break
-
-						case 'boolean':
-							ClassToConverTo = Boolean
-							break
-
-						default:
-							throw '[QueryTransformation.converTo] "to" is invalid.'
-					}
-
-					const transformedValue = ClassToConverTo(value)
-					mongoParseableMatch[key] = transformedValue
-				}
-			})
-		}
-
-		this.mongoParseableQuery.match = mongoParseableMatch
-		return this
-	}
-
 	private buildTime(): this {
 		if (this.rawQuery.time) {
 			const rawQueryCopy = Object.assign(this.rawQuery) as RawQuery
@@ -222,6 +185,57 @@ export default class {
 		})
 
 		this.mongoParseableQuery.match = transformedMatch
+		return this
+	}
+
+	private buildMatch(): this {
+		let mongoParseableMatch = Object.assign(this.rawQuery.match)
+		this.mongoParseableQuery.match = mongoParseableMatch
+		if (!this.convert.length) {
+			return this
+		}
+
+		for (const convertion of this.convert) {
+			const keys = convertion.keys.split(',')
+			for (const key of keys) {
+				const path = key.split('.')
+				const valueToConvert = path.reduce<any>(
+					(acc, curr) => acc[curr],
+					mongoParseableMatch
+				)
+
+				let ClassToConverTo: any
+				switch (convertion.to) {
+					case 'number':
+						ClassToConverTo = Number
+						break
+
+					case 'string':
+						ClassToConverTo = String
+						break
+
+					case 'objectId':
+						ClassToConverTo = Types.ObjectId
+						break
+
+					case 'boolean':
+						ClassToConverTo = Boolean
+						break
+
+					default:
+						throw '[QueryTransformation.converTo] "to" is invalid.'
+				}
+
+				const convertedValue = ClassToConverTo(valueToConvert)
+				mongoParseableMatch = setNestedKey(
+					mongoParseableMatch,
+					path,
+					convertedValue
+				)
+			}
+		}
+
+		this.mongoParseableQuery.match = mongoParseableMatch
 		return this
 	}
 }
