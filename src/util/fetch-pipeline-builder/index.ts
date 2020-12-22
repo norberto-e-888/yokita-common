@@ -204,6 +204,7 @@ export default class {
 					mongoParseableMatch
 				)
 
+				console.log(key, valueToConvert)
 				if (valueToConvert) {
 					let ClassToConverTo: any
 					switch (convertion.to) {
