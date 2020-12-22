@@ -21,3 +21,5 @@ export const abbreviateLanguageToOmmitedWordsMap: {
 	[AbbreviateSupportedLanguage.ES]: ['de', 'y', 'la', 'el', 'lo', 'en'],
 	[AbbreviateSupportedLanguage.EN]: ['and', 'the', 'of']
 }
+
+// trigger build
