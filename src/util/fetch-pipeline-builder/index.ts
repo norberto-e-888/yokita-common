@@ -200,11 +200,14 @@ export default class {
 			for (const key of keys) {
 				const path = key.split('.')
 				const valueToConvert = path.reduce<any>(
-					(acc, curr) => acc[curr] || {},
+					(acc, curr) => (acc[curr] === undefined ? {} : acc[curr]),
 					mongoParseableMatch
 				)
 
-				if (valueToConvert && typeof valueToConvert !== 'object') {
+				if (
+					valueToConvert !== undefined &&
+					typeof valueToConvert !== 'object'
+				) {
 					let ClassToConverTo: any
 					switch (convertion.to) {
 						case 'number':
@@ -227,14 +230,19 @@ export default class {
 							throw '[QueryTransformation.converTo] "to" is invalid.'
 					}
 
-					const convertedValue = ClassToConverTo(valueToConvert)
-					if (convertedValue) {
-						mongoParseableMatch = setNestedKey(
-							mongoParseableMatch,
-							path,
-							convertedValue
-						)
+					let convertedValue
+					if (convertion.to === 'boolean') {
+						convertedValue =
+							valueToConvert === 'false' ? false : !!valueToConvert
+					} else {
+						convertedValue = ClassToConverTo(valueToConvert)
 					}
+
+					mongoParseableMatch = setNestedKey(
+						mongoParseableMatch,
+						path,
+						convertedValue
+					)
 				}
 			}
 		}

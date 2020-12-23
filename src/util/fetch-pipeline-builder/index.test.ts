@@ -208,7 +208,8 @@ describe('FetchPipelineBuilder', () => {
 					f: 2,
 					g: '',
 					h: 'true',
-					i: 'all-non-empty-strings-will-be-converted-to-true',
+					i: 'false',
+					j: 'all-other-non-empty-strings-will-be-converted-to-true',
 					hello: {
 						nested: '10',
 						preserved: 'preserved',
@@ -223,7 +224,7 @@ describe('FetchPipelineBuilder', () => {
 					{ keys: 'a,f', to: 'string' },
 					{ keys: 'b,e', to: 'number' },
 					{ keys: 'c,d', to: 'objectId' },
-					{ keys: 'g,h,i', to: 'boolean' },
+					{ keys: 'g,h,i,j', to: 'boolean' },
 					{ keys: 'hello.nested,hello.world.sonested', to: 'number' }
 				]
 			}
@@ -238,7 +239,8 @@ describe('FetchPipelineBuilder', () => {
 		expect(typeof $match.f).toBe('string')
 		expect($match.g).toBe(false)
 		expect($match.h).toBe(true)
-		expect($match.i).toBe(true)
+		expect($match.i).toBe(false)
+		expect($match.j).toBe(true)
 		expect(typeof $match.hello.nested).toBe('number')
 		expect(typeof $match.hello.world.sonested).toBe('number')
 		expect($match.hello.preserved).toBe('preserved')
