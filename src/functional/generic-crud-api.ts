@@ -51,7 +51,7 @@ export const genericCrudApiFactory = (
 		.get(fetchMiddleware, deps.controller.handleFetch(fetchOptions))
 
 	router
-		.route('/id')
+		.route('/:id')
 		.get(findByIdMiddleware, deps.controller.handleFindById(findByIdOptions))
 		.patch(
 			updateByIdMiddleware,
