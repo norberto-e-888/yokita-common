@@ -67,8 +67,11 @@ export const genericControllerFactory = (
 		next: NextFunction
 	) => {
 		try {
-			const optionsExtension: Pick<CommonActionByIdOptions, 'ownerId'> = {
-				ownerId: req[userProperty].id
+			let optionsExtension: Pick<CommonActionByIdOptions, 'ownerId'> = {}
+			if (opts.limitToOwner) {
+				optionsExtension = {
+					ownerId: req[userProperty].id
+				}
 			}
 
 			const document = await deps.repository.updateById(
